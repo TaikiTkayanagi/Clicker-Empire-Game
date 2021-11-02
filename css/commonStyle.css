@@ -1,0 +1,22 @@
+.back-ground-field{
+  height: 100vh;
+  width: 100vw;
+}
+
+.bg-darkviolet{
+  background-color: darkviolet;
+}
+
+.content-field{
+  height: 20rem;
+  width: 40rem;
+}
+
+.bg-white{
+  background-color: white;
+}
+
+.title-field{
+  height: 5em;
+  width: 100%;
+}
