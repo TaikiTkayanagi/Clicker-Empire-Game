@@ -1,22 +1,56 @@
 .back-ground-field{
   height: 100vh;
   width: 100vw;
+  font-size: 16px;
+  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
 }
 
 .bg-darkviolet{
   background-color: darkviolet;
 }
 
-.content-field{
-  height: 20rem;
-  width: 40rem;
-}
-
 .bg-white{
   background-color: white;
 }
 
-.title-field{
+.content-field{
+  height: 13rem;
+  width: 22rem;
+}
+
+.title-container{
+  height: 4em;
+  width: 100%;
+}
+
+.input-name-container{
+  height: 4em;
+  width: 100%;
+}
+
+.btns-container{
   height: 5em;
   width: 100%;
+}
+
+.title-field{
+  height: 60%;
+}
+
+.input-name-field{
+  height: 100%;
+}
+
+.btns-field{
+  height: 100%;
+}
+
+.input-name{
+  height: 50%;
+  width: 100%;
+}
+
+.login-window-btns{
+  height: 50%;
+  width: 7rem;
 }
