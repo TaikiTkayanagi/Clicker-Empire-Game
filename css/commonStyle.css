@@ -22,6 +22,11 @@
   width: 22rem;
 }
 
+.main-field{
+  height: 39rem;
+  width: 80rem;
+}
+
 .title-container{
   height: 4em;
   width: 100%;
@@ -37,6 +42,16 @@
   width: 100%;
 }
 
+.click-container{
+  height: 39em;
+  width: 40%;
+}
+
+.burgers-info-container{
+  height: 10%;
+  width: 100%;
+}
+
 .title-field{
   height: 60%;
 }
@@ -48,6 +63,17 @@
 .btns-field{
   height: 100%;
 }
+
+.click-field{
+  height: 96%;
+  width: 96%;
+}
+
+.burgers-info-field{
+  height: 85%;
+  width: 98%;
+}
+
 
 .input-name{
   height: 50%;
