@@ -17,13 +17,22 @@
   background-color: darkblue;
 }
 
+.height-half{
+  height: 50%;
+}
+
+.heigh-width-half{
+  height: 50%;
+  width: 50%;
+}
+
 .content-field{
   height: 13rem;
   width: 22rem;
 }
 
 .main-field{
-  height: 39rem;
+  height: 37rem;
   width: 80rem;
 }
 
@@ -43,12 +52,17 @@
 }
 
 .click-container{
-  height: 39em;
+  height: 37rem;
   width: 40%;
 }
 
 .burgers-info-container{
-  height: 10%;
+  height: 13%;
+  width: 100%;
+}
+
+.burgers-btn-container{
+  height: 87%;
   width: 100%;
 }
 
@@ -70,10 +84,14 @@
 }
 
 .burgers-info-field{
-  height: 85%;
+  height: 90%;
   width: 98%;
 }
 
+.burgers-btn-field{
+  height: 80%;
+  width: 100%;
+}
 
 .input-name{
   height: 50%;
