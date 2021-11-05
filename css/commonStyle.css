@@ -1,9 +1,12 @@
+body{
+  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  font-size: 16px;
+}
+
 .back-ground-field{
   height: 100vh;
   width: 100vw;
-  font-size: 16px;
-  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
-}
+  }
 
 .bg-darkviolet{
   background-color: darkviolet;
@@ -26,13 +29,18 @@
   width: 50%;
 }
 
+.full-size{
+  height: 100%;
+  width: 100%;
+}
+
 .content-field{
   height: 13rem;
   width: 22rem;
 }
 
 .main-field{
-  height: 37rem;
+  height: 90%;
   width: 80rem;
 }
 
@@ -52,18 +60,45 @@
 }
 
 .click-container{
-  height: 37rem;
+  height:99%;
   width: 40%;
 }
 
+.menu-container{
+  height: 99%;
+  width: 60%;
+}
+
 .burgers-info-container{
-  height: 13%;
+  height: 5rem;
   width: 100%;
 }
 
 .burgers-btn-container{
-  height: 87%;
+  height: 26rem;
   width: 100%;
+}
+
+.user-info-container{
+  height: 10rem;
+  width: 100%;
+}
+
+.select-invest-container{
+  height: 70%;
+  width: 100%;
+}
+
+.forth-container{
+  height: 50%;
+}
+
+.invest-container{
+  width: 95%;
+}
+
+.invest-container{
+
 }
 
 .title-field{
@@ -84,13 +119,46 @@
 }
 
 .burgers-info-field{
-  height: 90%;
+  height: 4rem;
   width: 98%;
 }
 
 .burgers-btn-field{
   height: 80%;
   width: 100%;
+}
+
+.forth-field{
+  height: 3rem;
+  width: 90%;
+}
+
+.user-info-field{
+  height: 7rem;
+  width: 90%;
+}
+
+.invest-and-btns-field{
+  height: 95%;
+  width: 95%;
+}
+
+.invest-field{
+  height: 80%;
+  width: 90%;
+}
+
+.save-and-reset-btns-field{
+  height: 20%;
+  width: 90%;
+}
+
+.over-flow{
+  overflow: scroll;
+}
+
+.invest{
+  height: 30%;
 }
 
 .input-name{
