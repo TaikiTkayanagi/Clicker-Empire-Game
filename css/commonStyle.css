@@ -148,9 +148,14 @@ body{
   width: 90%;
 }
 
-.save-and-reset-btns-field{
+.save-and-reset-btns-container{
   height: 20%;
   width: 90%;
+}
+
+.save-and-field-bnts-field{
+  height: 100%;
+  width: 40%;
 }
 
 .over-flow{
@@ -198,4 +203,13 @@ body{
 .money{
   color: gold;
   font-size: 60px;
+}
+
+.setting-btns{
+  height: 90%;
+  width: 30%;
+}
+
+.btn-icon-size{
+  font-size: 20px;
 }
