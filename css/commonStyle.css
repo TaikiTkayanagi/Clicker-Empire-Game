@@ -124,8 +124,8 @@ body{
 }
 
 .burgers-btn-field{
-  height: 80%;
-  width: 100%;
+  height: 20rem;
+  width: 30rem;
 }
 
 .forth-field{
@@ -157,6 +157,10 @@ body{
   overflow: scroll;
 }
 
+.over-flow-hidden{
+  overflow: hidden;
+}
+
 .invest{
   height: 30%;
 }
@@ -169,4 +173,29 @@ body{
 .login-window-btns{
   height: 50%;
   width: 7rem;
+}
+
+.save-refresh-btn{
+  height: 20%;
+  width: 30%;
+}
+
+.img-fluid{
+  height: 100%;
+  width: 40%;
+}
+
+.money-effect-container{
+  height: 10%;
+  width: 100%;
+}
+
+.money-effect-field{
+  height: 100%;
+  width: 50%;
+}
+
+.money{
+  color: gold;
+  font-size: 60px;
 }
