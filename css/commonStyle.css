@@ -34,6 +34,10 @@ body{
   width: 100%;
 }
 
+.full-width{
+  width: 100%;
+}
+
 .content-field{
   height: 13rem;
   width: 22rem;
@@ -97,10 +101,6 @@ body{
   width: 95%;
 }
 
-.invest-container{
-
-}
-
 .title-field{
   height: 60%;
 }
@@ -125,7 +125,7 @@ body{
 
 .burgers-btn-field{
   height: 20rem;
-  width: 30rem;
+  width: 100%;
 }
 
 .forth-field{
@@ -149,7 +149,7 @@ body{
 }
 
 .save-and-reset-btns-container{
-  height: 20%;
+  height: 17%;
   width: 90%;
 }
 
@@ -170,6 +170,29 @@ body{
   height: 30%;
 }
 
+.invest-info-container{
+  height: 60%;
+  width: 100%;
+}
+
+.input-buy-container{
+  height: 25%;
+  width: 100%;
+}
+
+.action-btns-container{
+  height: 15%;
+  width: 100%;
+}
+
+.invest-info{
+  height: 70%;
+}
+
+.invest-img{
+  height: 70%;
+}
+
 .input-name{
   height: 50%;
   width: 100%;
@@ -188,6 +211,11 @@ body{
 .img-fluid{
   height: 100%;
   width: 40%;
+}
+
+.img-detail{
+  height: 10rem;
+  width: 50%;
 }
 
 .money-effect-container{
@@ -212,4 +240,9 @@ body{
 
 .btn-icon-size{
   font-size: 20px;
+}
+
+.btns-action{
+  height: 100%;
+  width: 100%;
 }
