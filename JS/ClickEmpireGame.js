@@ -18,21 +18,31 @@ const maxPurchases = [500, null, null, 1000, 500, 100, 100, 20, 10, 5, 1]
 const investItems = []
 investImgUrls.forEach((url, i) =>
 {
-  investItems.append(new InvestItem(url, investNames[i], investPrices[i], 0, perMoneys[i], maxPurchases[i]))
+  investItems.push(new InvestItem(url, investNames[i], investPrices[i], 0, perMoneys[i], maxPurchases[i]))
 });
 
-function initializeMain(config) {
-  config.mainPage.innerHtml =
-    `
-      <div class="click-container d-flex justify-content-center align-items-center">
+function displayPageShow(page){
+  page.classList.remove("d-none");
+}
+
+function displayPageNone(page){
+  page.classList.add("d-none");
+}
+
+function createClickContainer(userInfo){
+  let container = document.createElement("div");
+  container.classList.add("click-container", "d-flex", "justify-content-center", "align-items-center")
+
+  container.innerHTML =
+  `
         <div class="click-field bg-darkviolet">
           <div class="burgers-info-container d-flex justify-content-center align-items-center">
             <div class="burgers-info-field bg-darkblue d-flex flex-wrap">
               <div class="col-12 d-flex justify-content-center height-half">
-                <h4 class="text-light">${clickCount} Burgers</h4>
+                <h4 class="text-light">${userInfo.clickCount} Burgers</h4>
               </div>
               <div class="col-12 d-flex justify-content-center align-items-end height-half">
-                <h5 class="text-light">one click ${perMoney}</h5>
+                <h5 class="text-light">one click ${userInfo.oneClick}</h5>
               </div>
             </div>
           </div>
@@ -48,8 +58,22 @@ function initializeMain(config) {
             </div>
           </div>
         </div>
-      </div>
   `
+
+  return container;
+}
+
+
+function initializeMain(config, userInfo){
+  let main = config.mainPage;
+  let login = config.loginPage
+
+  displayPageShow(main);
+  displayPageNone(login);
+
+  main.append(createClickContainer(userInfo));
+  //main.append(createUserInfoContainer(userInfo));
+  //main.append(createInvestContainer());
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -58,11 +82,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   let loginWindowBtns = config.loginPage.querySelectorAll(".login-window-btns");
-  let inputName = config.loginPage.querySelector(".input-name").value;
 
 
   loginWindowBtns.forEach((value, i) => {
     loginWindowBtns[i].addEventListener('click', () => {
+      let inputName = config.loginPage.querySelector(".input-name").value;
+
       //validation:値が入力されていな際、警告メッセージを出す
       if (inputName === "") {
         Validation.input("名前");
@@ -72,15 +97,15 @@ document.addEventListener("DOMContentLoaded", () => {
       let btnValue = loginWindowBtns[i].value;
       if (btnValue === "New") {
 
-        var userInfo = new UserInfo(inputName, 20, 0);
-        initializeMain(config, userInfo, investItems)
+        var userInfo = new UserInfo(inputName, 20, 0, 0, 0);
+        initializeMain(config, userInfo);
 
 
       } else if(btnValue === "Login") {
         let loadData = localStorage.getItem(inputName);
         //データを書き換える
         //setLoadData(loadData, userInfo, investItems)
-        initializeMain(config, userInfo, investItems);
+        initializeMain(config, userInfo);
       }
     });
   });
