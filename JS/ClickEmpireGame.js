@@ -16,25 +16,24 @@ const perMoneys = ["¥25 /click", "¥0.1 /sec", "¥0.07 /sec", "¥30 /sec", "¥1
 const maxPurchases = [500, null, null, 1000, 500, 100, 100, 20, 10, 5, 1]
 
 const investItems = []
-investImgUrls.forEach((url, i) =>
-{
+investImgUrls.forEach((url, i) => {
   investItems.push(new InvestItem(url, investNames[i], investPrices[i], 0, perMoneys[i], maxPurchases[i]))
 });
 
-function displayPageShow(page){
+function displayPageShow(page) {
   page.classList.remove("d-none");
 }
 
-function displayPageNone(page){
+function displayPageNone(page) {
   page.classList.add("d-none");
 }
 
-function createClickContainer(userInfo){
+function createClickContainer(userInfo) {
   let container = document.createElement("div");
   container.classList.add("click-container", "d-flex", "justify-content-center", "align-items-center")
 
   container.innerHTML =
-  `
+    `
         <div class="click-field bg-darkviolet">
           <div class="burgers-info-container d-flex justify-content-center align-items-center">
             <div class="burgers-info-field bg-darkblue d-flex flex-wrap">
@@ -63,8 +62,162 @@ function createClickContainer(userInfo){
   return container;
 }
 
+function createMenuContainer(userInfo) {
+  let container = document.createElement("div");
+  container.classList.add("menu-container");
 
-function initializeMain(config, userInfo){
+  container.append(createUserInfoContainer(userInfo));
+  container.append(createInvestContainer());
+
+  return container;
+}
+
+function createUserInfoContainer(userInfo) {
+  let container = document.createElement("div");
+  container.classList.add("user-info-container", "d-flex", "justify-content-center", "align-items-center");
+
+  container.innerHTML =
+    `
+          <div class="user-info-field bg-darkviolet d-flex flex-wrap">
+            <div class="forth-container col-6 d-flex justify-content-center align-items-center">
+              <div class="forth-field bg-darkblue d-flex justify-content-center">
+                <p class="text-light">${userInfo.name}</h5>
+              </div>
+            </div>
+            <div class="forth-container col-6 d-flex justify-content-center align-items-center">
+              <div class="forth-field bg-darkblue d-flex justify-content-center">
+                <p class="text-light">${userInfo.age}</p>
+              </div>
+            </div>
+            <div class="forth-container col-6 d-flex justify-content-center align-items-center">
+              <div class="forth-field bg-darkblue d-flex justify-content-center">
+                <p class="text-light">10 days</p>
+              </div>
+            </div>
+            <div class="forth-container col-6 d-flex justify-content-center align-items-center">
+              <div class="forth-field bg-darkblue d-flex justify-content-center">
+                <p class="text-light">${userInfo.money}</p>
+              </div>
+            </div>
+          </div>
+  `
+
+  return container;
+}
+
+function createInvestContainer() {
+  let container = document.createElement("div");
+  container.classList.add("select-invest-container", "d-flex", "align-items-center", "justify-content-center", "flex-wrap");
+
+  let investFieldAndBtnsField = document.createElement("div");
+  investFieldAndBtnsField.classList.add("invest-and-btns-field", "bg-darkviolet", "col-12", "d-flex", "flex-wrap", "justify-content-center");
+
+  investFieldAndBtnsField.append(createInvestList());
+  investFieldAndBtnsField.append(createInvestBtns());
+
+  container.append(investFieldAndBtnsField);
+
+  return container;
+}
+
+function createInvestList() {
+  let field = document.createElement("div");
+  field.classList.add("invest-field", "over-flow", "my-1");
+
+  investItems.forEach(invest => {
+    field.innerHTML +=
+      `
+              <div class="invest col-12 d-flex bg-darkblue my-1">
+                <div class=" invest-img col-3 d-flex justify-content-center">
+                  <img src="${invest.img}" class="img-fluid">
+                </div>
+                <div class=" invest-title col-6 over-flow-hidden">
+                  <h3 class="text-light">${invest.name}</h3>
+                  <p class="text-light">${invest.price}</p>
+                </div>
+                <div class=" invest-count col-3 over-flow-hidden">
+                  <h3 class="text-light">${invest.numberOfPossession}</h3>
+                  <p class="text-success">${invest.perMoney}</p>
+                </div>
+              </div>
+    `
+
+  });
+  let investFields = field.querySelectorAll("invest");
+
+  investFields.forEach((invest, i) => {
+    investFields[i].addEventListener("click", () => {
+      //動的に値を入れる
+      field.innerHTML = "";
+      field.innerHTML =
+      `
+              <div class="invest-info-container d-flex justify-content-between align-items-center">
+                <div class="invest-info col-6 px-1 over-flow-hidden">
+                  <h3 class="text-light">TownHouse</h3>
+                  <p class="text-light">Max purchases: 100</p>
+                  <p class="text-light">Price: ¥400000000</p>
+                  <p class="text-light">Get ¥64000 /sec</p>
+                </div>
+                <div class="invest-img col-6 d-flex justify-content-end">
+                  <img src="https://cdn.pixabay.com/photo/2019/06/15/22/30/modern-house-4276598_960_720.png" class="img-detail">
+                </div>
+              </div>
+              <div class="input-buy-container">
+                <p class="text-light">How many would you like to buy?</p>
+                <input type="number" class="full-width" placeholder="0">
+                <div class="full-size d-flex justify-content-end">
+                  <p class="text-light">total: ￥0</p>
+                </div>
+              </div>
+              <div class="action-btns-container">
+                <div class="full-size d-flex justify-content-between align-items-end">
+                  <div class="col-5">
+                    <input type="button" class="btn btn-outline-light btns-action" value="Go Back">
+                  </div>
+                  <div class="col-5">
+                    <input type="button" class="btn btn-light btns-action" value="Purchase">
+                  </div>
+                </div>
+              </div>
+      `
+    })
+  });
+
+  return field;
+}
+
+function createInvestBtns(){
+  let container = document.createElement("div");
+  container.classList.add("save-and-reset-btns-container", "d-flex", "justify-content-end");
+
+  container.innerHTML =
+  `
+              <div class="save-and-reset-btns save-and-field-bnts-field d-flex justify-content-end align-items-end">
+                <div class="save-btn setting-btns d-flex justify-content-end">
+                  <button class="full-size btn btn-outline-light">
+                    <i class="fas fa-save btn-icon-size"></i>
+                    <p>Save</p>
+                  </button>
+                </div>
+                <div class="refresh-bth setting-btns d-flex justify-content-end">
+                  <button class="full-size btn btn-outline-light">
+                    <i class="fas fa-redo btn-icon-size"></i>
+                    <p>Reset</p>
+                  </button>
+                </div>
+              <div>
+  `
+
+  return container;
+}
+
+function createBuyInvestContainer(){
+  let container = document.createElement("div");
+
+
+}
+
+function initializeMain(config, userInfo) {
   let main = config.mainPage;
   let login = config.loginPage
 
@@ -72,8 +225,7 @@ function initializeMain(config, userInfo){
   displayPageNone(login);
 
   main.append(createClickContainer(userInfo));
-  //main.append(createUserInfoContainer(userInfo));
-  //main.append(createInvestContainer());
+  main.append(createMenuContainer(userInfo));
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -101,7 +253,7 @@ document.addEventListener("DOMContentLoaded", () => {
         initializeMain(config, userInfo);
 
 
-      } else if(btnValue === "Login") {
+      } else if (btnValue === "Login") {
         let loadData = localStorage.getItem(inputName);
         //データを書き換える
         //setLoadData(loadData, userInfo, investItems)
