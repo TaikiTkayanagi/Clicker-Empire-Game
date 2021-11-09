@@ -132,34 +132,45 @@ function createInvestList() {
                   <img src="${invest.img}" class="img-fluid">
                 </div>
                 <div class=" invest-title col-6 over-flow-hidden">
-                  <h3 class="text-light">${invest.name}</h3>
-                  <p class="text-light">${invest.price}</p>
+                  <h3 class="text-light invest-name">${invest.name}</h3>
+                  <p class="text-light invest-price">${invest.price}</p>
                 </div>
                 <div class=" invest-count col-3 over-flow-hidden">
-                  <h3 class="text-light">${invest.numberOfPossession}</h3>
-                  <p class="text-success">${invest.perMoney}</p>
+                  <h3 class="text-light invest-number">${invest.numberOfPossession}</h3>
+                  <p class="text-success invest-perMoney">${invest.perMoney}</p>
+                  <input type="hidden" class="invest-max" value="${invest.maxPurchases}">
                 </div>
               </div>
     `
-
   });
-  let investFields = field.querySelectorAll("invest");
+
+  let investFields = field.querySelectorAll(".invest");
 
   investFields.forEach((invest, i) => {
     investFields[i].addEventListener("click", () => {
-      //動的に値を入れる
+      field.classList.remove("over-flow");
+      field.classList.add("bg-darkblue")
+
+      let investImg = investFields[i].querySelector(".img-fluid");
+      let investName = investFields[i].querySelector(".invest-name");
+      let investPrice = investFields[i].querySelector(".invest-price");
+      let investNumber = investFields[i].querySelector(".invest-number");
+      let investPerMoney = investFields[i].querySelector(".invest-perMoney");
+      let investMax = investFields[i].querySelector(".invest-max");
+
       field.innerHTML = "";
+
       field.innerHTML =
       `
               <div class="invest-info-container d-flex justify-content-between align-items-center">
                 <div class="invest-info col-6 px-1 over-flow-hidden">
-                  <h3 class="text-light">TownHouse</h3>
-                  <p class="text-light">Max purchases: 100</p>
-                  <p class="text-light">Price: ¥400000000</p>
-                  <p class="text-light">Get ¥64000 /sec</p>
+                  <h3 class="text-light">${investName.innerHTML}</h3>
+                  <p class="text-light">Max purchases: ${investMax.value}</p>
+                  <p class="text-light">Price: ¥${investPrice.innerHTML}</p>
+                  <p class="text-light">Get ${investPerMoney.innerHTML}</p>
                 </div>
                 <div class="invest-img col-6 d-flex justify-content-end">
-                  <img src="https://cdn.pixabay.com/photo/2019/06/15/22/30/modern-house-4276598_960_720.png" class="img-detail">
+                  <img src="${investImg.src}" class="img-detail">
                 </div>
               </div>
               <div class="input-buy-container">
@@ -181,6 +192,7 @@ function createInvestList() {
               </div>
       `
     })
+    //buttonのアクションを設定する
   });
 
   return field;
