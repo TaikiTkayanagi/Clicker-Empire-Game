@@ -115,6 +115,71 @@ function createInvestContainer() {
   investFieldAndBtnsField.append(createInvestList());
   investFieldAndBtnsField.append(createInvestBtns());
 
+  //購入画面を表示する設定を行う
+  let investFields = investFieldAndBtnsField.querySelectorAll(".invest");
+
+  investFields.forEach((invest, i) => {
+    investFields[i].addEventListener("click", () => {
+      let field = document.querySelector(".invest-field");
+      field.classList.remove("over-flow");
+      field.classList.add("bg-darkblue");
+
+      let investImg = investFields[i].querySelector(".img-fluid");
+      let investName = investFields[i].querySelector(".invest-name");
+      let investPrice = investFields[i].querySelector(".invest-price");
+      let investNumber = investFields[i].querySelector(".invest-number");
+      let investPerMoney = investFields[i].querySelector(".invest-perMoney");
+      let investMax = investFields[i].querySelector(".invest-max");
+
+      field.innerHTML = "";
+
+      field.innerHTML =
+        `
+              <div class="invest-info-container d-flex justify-content-between align-items-center">
+                <div class="invest-info col-6 px-1 over-flow-hidden">
+                  <h3 class="text-light">${investName.innerHTML}</h3>
+                  <p class="text-light">Max purchases: ${investMax.value}</p>
+                  <p class="text-light">Price: ¥${investPrice.innerHTML}</p>
+                  <p class="text-light">Get ${investPerMoney.innerHTML}</p>
+                </div>
+                <div class="invest-img col-6 d-flex justify-content-end">
+                  <img src="${investImg.src}" class="img-detail">
+                </div>
+              </div>
+              <div class="input-buy-container">
+                <p class="text-light">How many would you like to buy?</p>
+                <input type="number" class="full-width" placeholder="0">
+                <div class="full-size d-flex justify-content-end">
+                  <p class="text-light">total: ￥0</p>
+                </div>
+              </div>
+              <div class="action-btns-container">
+                <div class="full-size d-flex justify-content-between align-items-end">
+                  <div class="col-5">
+                    <input type="button" class="btn btn-outline-light back-btn btns-action" value="Go Back">
+                  </div>
+                  <div class="col-5">
+                    <input type="button" class="btn btn-light purchase-bth btns-action" value="Purchase">
+                  </div>
+                </div>
+              </div>
+      `
+
+      //購入ページのボタンを押した際の設定を行う
+      let backBtn = field.querySelector(".back-bth");
+      backBtn.addEventListener("click", () => {
+        investFieldAndBtnsField.innerHTML = "";
+        investFieldAndBtnsField.append(createInvestList());
+        investFieldAndBtnsField.append(createInvestBtns());
+      });
+
+      let purchaseBtn = field.querySelector(".purchase-btn");
+      purchaseBtn.addEventListener("click", () => {
+
+      });
+    })
+  });
+
   container.append(investFieldAndBtnsField);
 
   return container;
@@ -144,66 +209,18 @@ function createInvestList() {
     `
   });
 
-  let investFields = field.querySelectorAll(".invest");
 
-  investFields.forEach((invest, i) => {
-    investFields[i].addEventListener("click", () => {
-      field.classList.remove("over-flow");
-      field.classList.add("bg-darkblue")
 
-      let investImg = investFields[i].querySelector(".img-fluid");
-      let investName = investFields[i].querySelector(".invest-name");
-      let investPrice = investFields[i].querySelector(".invest-price");
-      let investNumber = investFields[i].querySelector(".invest-number");
-      let investPerMoney = investFields[i].querySelector(".invest-perMoney");
-      let investMax = investFields[i].querySelector(".invest-max");
-
-      field.innerHTML = "";
-
-      field.innerHTML =
-      `
-              <div class="invest-info-container d-flex justify-content-between align-items-center">
-                <div class="invest-info col-6 px-1 over-flow-hidden">
-                  <h3 class="text-light">${investName.innerHTML}</h3>
-                  <p class="text-light">Max purchases: ${investMax.value}</p>
-                  <p class="text-light">Price: ¥${investPrice.innerHTML}</p>
-                  <p class="text-light">Get ${investPerMoney.innerHTML}</p>
-                </div>
-                <div class="invest-img col-6 d-flex justify-content-end">
-                  <img src="${investImg.src}" class="img-detail">
-                </div>
-              </div>
-              <div class="input-buy-container">
-                <p class="text-light">How many would you like to buy?</p>
-                <input type="number" class="full-width" placeholder="0">
-                <div class="full-size d-flex justify-content-end">
-                  <p class="text-light">total: ￥0</p>
-                </div>
-              </div>
-              <div class="action-btns-container">
-                <div class="full-size d-flex justify-content-between align-items-end">
-                  <div class="col-5">
-                    <input type="button" class="btn btn-outline-light btns-action" value="Go Back">
-                  </div>
-                  <div class="col-5">
-                    <input type="button" class="btn btn-light btns-action" value="Purchase">
-                  </div>
-                </div>
-              </div>
-      `
-    })
-    //buttonのアクションを設定する
-  });
 
   return field;
 }
 
-function createInvestBtns(){
+function createInvestBtns() {
   let container = document.createElement("div");
   container.classList.add("save-and-reset-btns-container", "d-flex", "justify-content-end");
 
   container.innerHTML =
-  `
+    `
               <div class="save-and-reset-btns save-and-field-bnts-field d-flex justify-content-end align-items-end">
                 <div class="save-btn setting-btns d-flex justify-content-end">
                   <button class="full-size btn btn-outline-light">
@@ -223,7 +240,7 @@ function createInvestBtns(){
   return container;
 }
 
-function createBuyInvestContainer(){
+function createBuyInvestContainer() {
   let container = document.createElement("div");
 
 
