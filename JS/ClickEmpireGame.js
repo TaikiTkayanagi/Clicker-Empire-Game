@@ -1,8 +1,29 @@
 var Validation =
 {
-  input: function (message) {
+  isInputNull: function (target) {
+    if (target !== "") { return false; }
+    else {
+      Validation.inputMessage("名前");
+      return true;
+    }
+  },
+
+  inputMessage: function (message) {
     window.alert(`${message}を入力してください。`);
+  },
+
+  canPurchaseItems: function (money, price) {
+    if (money >= price) { return true; }
+    else {
+      Validation.notEnoughMoneyMessage(price - money);
+      return false;
+    }
+  },
+
+  notEnoughMoneyMessage(money) {
+    window.alert(`¥${money}不足しています`);
   }
+
 }
 
 const investImgUrls = ["https://cdn.pixabay.com/photo/2019/06/30/20/09/grill-4308709_960_720.png", "https://cdn.pixabay.com/photo/2016/03/31/20/51/chart-1296049_960_720.png", "https://cdn.pixabay.com/photo/2016/03/31/20/51/chart-1296049_960_720.png", "https://cdn.pixabay.com/photo/2012/04/15/20/36/juice-35236_960_720.png", "https://cdn.pixabay.com/photo/2020/01/30/12/37/ice-cream-4805333_960_720.png", "https://cdn.pixabay.com/photo/2016/03/31/18/42/home-1294564_960_720.png", "https://cdn.pixabay.com/photo/2019/06/15/22/30/modern-house-4276598_960_720.png", "https://cdn.pixabay.com/photo/2017/10/30/20/52/condominium-2903520_960_720.png", "https://cdn.pixabay.com/photo/2012/05/07/17/35/factory-48781_960_720.png", "https://cdn.pixabay.com/photo/2012/05/07/18/03/skyscrapers-48853_960_720.png", "https://cdn.pixabay.com/photo/2013/07/13/10/21/train-157027_960_720.png"];
@@ -62,12 +83,12 @@ function createClickContainer(userInfo) {
   return container;
 }
 
-function createMenuContainer(userInfo) {
+function createMenuContainer(userInfo, config) {
   let container = document.createElement("div");
   container.classList.add("menu-container");
 
   container.append(createUserInfoContainer(userInfo));
-  container.append(createInvestContainer());
+  container.append(createInvestContainer(userInfo, config));
 
   return container;
 }
@@ -105,10 +126,10 @@ function createUserInfoContainer(userInfo) {
   return container;
 }
 
-function setInvestClick(investFields, investFieldAndBtnsField) {
+function setInvestClick(investFields, investFieldAndBtnsField, userInfo, config) {
   investFields.forEach((invest, i) => {
 
-  investFields[i].addEventListener("click", () => {
+    investFields[i].addEventListener("click", () => {
       let field = document.querySelector(".invest-field");
       field.classList.remove("over-flow");
       field.classList.add("bg-darkblue");
@@ -148,7 +169,7 @@ function setInvestClick(investFields, investFieldAndBtnsField) {
                     <input type="button" id="back-btn" class="btn btn-outline-light btns-action" value="Go Back">
                   </div>
                   <div class="col-5">
-                    <input type="button" id="back-btn" class="btn btn-light btns-action" value="Purchase">
+                    <input type="button" id="purchase-btn" class="btn btn-light btns-action" value="Purchase">
                   </div>
                 </div>
               </div>
@@ -157,22 +178,27 @@ function setInvestClick(investFields, investFieldAndBtnsField) {
       //購入ページのボタンを押した際の設定を行う
       let backBtn = field.querySelector("#back-btn");
       backBtn.addEventListener("click", () => {
-        investFieldAndBtnsField.innerHTML = "";
-        investFieldAndBtnsField.append(createInvestList());
-        investFieldAndBtnsField.append(createInvestBtns());
-        setInvestClick(investFieldAndBtnsField.querySelectorAll(".invest"), investFieldAndBtnsField);
+        let target = document.querySelector(".menu-container");
+        config.mainPage.removeChild(target);
+        config.mainPage.append(createMenuContainer(userInfo, config));
       });
+
 
       let purchaseBtn = field.querySelector("#purchase-btn");
       purchaseBtn.addEventListener("click", () => {
-
+        if (Validation.canPurchaseItems(userInfo.money, investPrice.innerHTML)) {
+          //買える際の処理
+        }
+        let target = document.getElementById("menu-container");
+        config.mainPage.removeChild(target);
+        main.append(createMenuContainer(userInfo, config));
       });
 
     })
   });
 }
 
-function createInvestContainer() {
+function createInvestContainer(userInfo, config) {
   let container = document.createElement("div");
   container.classList.add("select-invest-container", "d-flex", "align-items-center", "justify-content-center", "flex-wrap");
 
@@ -183,7 +209,7 @@ function createInvestContainer() {
   investFieldAndBtnsField.append(createInvestBtns());
 
   container.append(investFieldAndBtnsField);
-  setInvestClick(investFieldAndBtnsField.querySelectorAll(".invest"), investFieldAndBtnsField)
+  setInvestClick(investFieldAndBtnsField.querySelectorAll(".invest"), investFieldAndBtnsField, userInfo, config)
 
   return container;
 }
@@ -253,8 +279,8 @@ function initializeMain(config, userInfo) {
   displayPageShow(main);
   displayPageNone(login);
 
-  main.append(createClickContainer(userInfo));
-  main.append(createMenuContainer(userInfo));
+  main.append(createClickContainer(userInfo, config));
+  main.append(createMenuContainer(userInfo, config));
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -270,8 +296,7 @@ document.addEventListener("DOMContentLoaded", () => {
       let inputName = config.loginPage.querySelector(".input-name").value;
 
       //validation:値が入力されていな際、警告メッセージを出す
-      if (inputName === "") {
-        Validation.input("名前");
+      if (Validation.isInputNull(inputName)) {
         return;
       }
 
