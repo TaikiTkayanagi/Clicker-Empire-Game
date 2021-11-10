@@ -105,21 +105,10 @@ function createUserInfoContainer(userInfo) {
   return container;
 }
 
-function createInvestContainer() {
-  let container = document.createElement("div");
-  container.classList.add("select-invest-container", "d-flex", "align-items-center", "justify-content-center", "flex-wrap");
-
-  let investFieldAndBtnsField = document.createElement("div");
-  investFieldAndBtnsField.classList.add("invest-and-btns-field", "bg-darkviolet", "col-12", "d-flex", "flex-wrap", "justify-content-center");
-
-  investFieldAndBtnsField.append(createInvestList());
-  investFieldAndBtnsField.append(createInvestBtns());
-
-  //購入画面を表示する設定を行う
-  let investFields = investFieldAndBtnsField.querySelectorAll(".invest");
-
+function setInvestClick(investFields, investFieldAndBtnsField) {
   investFields.forEach((invest, i) => {
-    investFields[i].addEventListener("click", () => {
+
+  investFields[i].addEventListener("click", () => {
       let field = document.querySelector(".invest-field");
       field.classList.remove("over-flow");
       field.classList.add("bg-darkblue");
@@ -156,31 +145,45 @@ function createInvestContainer() {
               <div class="action-btns-container">
                 <div class="full-size d-flex justify-content-between align-items-end">
                   <div class="col-5">
-                    <input type="button" class="btn btn-outline-light back-btn btns-action" value="Go Back">
+                    <input type="button" id="back-btn" class="btn btn-outline-light btns-action" value="Go Back">
                   </div>
                   <div class="col-5">
-                    <input type="button" class="btn btn-light purchase-bth btns-action" value="Purchase">
+                    <input type="button" id="back-btn" class="btn btn-light btns-action" value="Purchase">
                   </div>
                 </div>
               </div>
       `
 
       //購入ページのボタンを押した際の設定を行う
-      let backBtn = field.querySelector(".back-bth");
+      let backBtn = field.querySelector("#back-btn");
       backBtn.addEventListener("click", () => {
         investFieldAndBtnsField.innerHTML = "";
         investFieldAndBtnsField.append(createInvestList());
         investFieldAndBtnsField.append(createInvestBtns());
+        setInvestClick(investFieldAndBtnsField.querySelectorAll(".invest"), investFieldAndBtnsField);
       });
 
-      let purchaseBtn = field.querySelector(".purchase-btn");
+      let purchaseBtn = field.querySelector("#purchase-btn");
       purchaseBtn.addEventListener("click", () => {
 
       });
+
     })
   });
+}
+
+function createInvestContainer() {
+  let container = document.createElement("div");
+  container.classList.add("select-invest-container", "d-flex", "align-items-center", "justify-content-center", "flex-wrap");
+
+  let investFieldAndBtnsField = document.createElement("div");
+  investFieldAndBtnsField.classList.add("invest-and-btns-field", "bg-darkviolet", "col-12", "d-flex", "flex-wrap", "justify-content-center");
+
+  investFieldAndBtnsField.append(createInvestList());
+  investFieldAndBtnsField.append(createInvestBtns());
 
   container.append(investFieldAndBtnsField);
+  setInvestClick(investFieldAndBtnsField.querySelectorAll(".invest"), investFieldAndBtnsField)
 
   return container;
 }
@@ -208,9 +211,6 @@ function createInvestList() {
               </div>
     `
   });
-
-
-
 
   return field;
 }
