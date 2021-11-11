@@ -75,6 +75,13 @@ function getBurgerMoney(){
 
 }
 
+function setLoadData(jsonLoadData, userInfo){
+  let loadData = JSON.parse(jsonLoadData);
+  userInfo = loadData.userInfo;
+  let test = loadData.test;
+  investItems = loadData.investsInfo;
+}
+
 function setInvestClick(investFields, investFieldAndBtnsField, userInfo, config) {
   investFields.forEach((invest, i) => {
 
@@ -165,11 +172,14 @@ function setBurgerClick(burger, config, userInfo){
 function setSaveAndReset(saveBtn, resetBtn, userInfo){
   saveBtn.addEventListener("click", () => {
     //Json文字列=>オブジェクト=>Jsonの流れ
-    let jsonString = `[{"userInfo": ${userInfo}, "investsInfo": ${investItems}}]`;
+    let jsonString = `[{"userInfo": ${userInfo}, "investsInfo": ${investItems}, "test": 1}]`;
+    let jsonDecode = JSON.parse(jsonString);
+    let jsonEncode = JSON.stringify(jsonDecode);
+    localStorage.setItem(userInfo.name, jsonEncode);
   });
 
   resetBtn.addEventListener("click", () => {
-
+    localStorage.removeItem("clickEmpire");
   });
 }
 
@@ -263,7 +273,9 @@ function createInvestContainer(userInfo, config) {
   investFieldAndBtnsField.append(createInvestBtns());
 
   container.append(investFieldAndBtnsField);
+
   setInvestClick(investFieldAndBtnsField.querySelectorAll(".invest"), investFieldAndBtnsField, userInfo, config)
+  setSaveAndReset(container.querySelector(".save-btn"), container.querySelector(".reset-btn"), userInfo);
 
   return container;
 }
@@ -303,13 +315,13 @@ function createInvestBtns() {
     `
               <div class="save-and-reset-btns save-and-field-bnts-field d-flex justify-content-end align-items-end">
                 <div class="save-btn setting-btns d-flex justify-content-end">
-                  <button class="full-size btn btn-outline-light">
+                  <button class="full-size btn btn-outline-light save-btn">
                     <i class="fas fa-save btn-icon-size"></i>
                     <p>Save</p>
                   </button>
                 </div>
                 <div class="refresh-bth setting-btns d-flex justify-content-end">
-                  <button class="full-size btn btn-outline-light">
+                  <button class="full-size btn btn-outline-light reset-btn">
                     <i class="fas fa-redo btn-icon-size"></i>
                     <p>Reset</p>
                   </button>
@@ -317,7 +329,6 @@ function createInvestBtns() {
               <div>
   `
 
-  //setSaveAndReset();
 
   return container;
 }
@@ -351,16 +362,16 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       let btnValue = loginWindowBtns[i].value;
+      var userInfo = new UserInfo(inputName, 20, 0, 0);
       if (btnValue === "New") {
 
-        var userInfo = new UserInfo(inputName, 20, 0, 0);
         initializeMain(config, userInfo);
 
-
       } else if (btnValue === "Login") {
-        let loadData = localStorage.getItem(inputName);
+
+        let jsonLoadData = localStorage.getItem(inputName);
         //データを書き換える
-        //setLoadData(loadData, userInfo, investItems)
+        setLoadData(jsonLoadData, userInfo);
         initializeMain(config, userInfo);
       }
     });
