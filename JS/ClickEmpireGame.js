@@ -1,5 +1,5 @@
-var Validation =
-{
+var Validation ={
+
   isInputNull: function (target) {
     if (target !== "") { return false; }
     else {
@@ -12,10 +12,11 @@ var Validation =
     window.alert(`${message}を入力してください。`);
   },
 
-  canPurchaseItems: function (money, price) {
-    if (money >= price) { return true; }
+  canPurchaseItems: function (money, price, quantity) {
+    let finalPrice = price * quantity;
+    if (money >= finalPrice) { return true; }
     else {
-      Validation.notEnoughMoneyMessage(price - money);
+      Validation.notEnoughMoneyMessage(finalPrice - money);
       return false;
     }
   },
@@ -34,9 +35,9 @@ const investPrices = [1500, 300000, 300000, 30000, 100000, 20000000, 40000000, 2
 
 const perMoneys = ["¥25 /click", "¥0.1 /sec", "¥0.07 /sec", "¥30 /sec", "¥120 /sec", "¥32000 /sec", "¥64000 /sec", "¥500000 /sec", "￥2200000 /sec", "￥25000000 /sec", "￥30000000000 /sec"];
 
-const maxPurchases = [500, null, null, 1000, 500, 100, 100, 20, 10, 5, 1]
+const maxPurchases = [500, null, null, 1000, 500, 100, 100, 20, 10, 5, 1];
 
-const investItems = []
+const investItems = [];
 investImgUrls.forEach((url, i) => {
   investItems.push(new InvestItem(url, investNames[i], investPrices[i], 0, perMoneys[i], maxPurchases[i]))
 });
@@ -49,7 +50,130 @@ function displayPageNone(page) {
   page.classList.add("d-none");
 }
 
-function createClickContainer(userInfo) {
+function initializeMenuContainer(config, userInfo) {
+  let target = document.querySelector(".menu-container");
+  config.mainPage.removeChild(target);
+  config.mainPage.append(createMenuContainer(userInfo, config));
+}
+
+function formatPerMoney(perMoney){
+  return Number(perMoney.split(" ")[0].substring(1));
+}
+
+function getBurgerMoney(){
+  let money;
+  let possession;
+
+  investItems.forEach(invest => {
+    if(invest.name === "Flip machine"){
+      money = formatPerMoney(invest.perMoney);
+      possession = invest.numberOfPossession;
+    }
+
+  });
+  return possession === 0 ? money : money * possession;
+
+}
+
+function setInvestClick(investFields, investFieldAndBtnsField, userInfo, config) {
+  investFields.forEach((invest, i) => {
+
+    investFields[i].addEventListener("click", () => {
+      let field = document.querySelector(".invest-field");
+      field.classList.remove("over-flow");
+      field.classList.add("bg-darkblue");
+
+      let investImg = investFields[i].querySelector(".img-fluid");
+      let investName = investFields[i].querySelector(".invest-name");
+      let investPrice = investFields[i].querySelector(".invest-price");
+      let investNumber = investFields[i].querySelector(".invest-number");
+      let investPerMoney = investFields[i].querySelector(".invest-perMoney");
+      let investMax = investFields[i].querySelector(".invest-max");
+
+      field.innerHTML = "";
+
+      field.innerHTML =
+        `
+              <div class="invest-info-container d-flex justify-content-between align-items-center">
+                <div class="invest-info col-6 px-1 over-flow-hidden">
+                  <h3 class="text-light">${investName.innerHTML}</h3>
+                  <p class="text-light">Max purchases: ${investMax.value}</p>
+                  <p class="text-light">Price: ¥${investPrice.innerHTML}</p>
+                  <p class="text-light">Get ${investPerMoney.innerHTML}</p>
+                </div>
+                <div class="invest-img col-6 d-flex justify-content-end">
+                  <img src="${investImg.src}" class="img-detail">
+                </div>
+              </div>
+              <div class="input-buy-container">
+                <p class="text-light">How many would you like to buy?</p>
+                <input type="number" class="quantity full-width" placeholder="0">
+                <div class="full-size d-flex justify-content-end">
+                  <p class="text-light">total: ￥0</p>
+                </div>
+              </div>
+              <div class="action-btns-container">
+                <div class="full-size d-flex justify-content-between align-items-end">
+                  <div class="col-5">
+                    <input type="button" id="back-btn" class="btn btn-outline-light btns-action" value="Go Back">
+                  </div>
+                  <div class="col-5">
+                    <input type="button" id="purchase-btn" class="btn btn-light btns-action" value="Purchase">
+                  </div>
+                </div>
+              </div>
+      `
+
+      //購入ページのボタンを押した際の設定を行う
+      let backBtn = field.querySelector("#back-btn");
+      backBtn.addEventListener("click", () => {
+        initializeMenuContainer(config, userInfo);
+      });
+
+
+      let purchaseBtn = field.querySelector("#purchase-btn");
+      purchaseBtn.addEventListener("click", () => {
+        if (Validation.canPurchaseItems(userInfo.money, investPrice.innerHTML, field.querySelector(".quantity").value)) {
+          //買える際の処理
+
+        }
+        initializeMenuContainer(config, userInfo);
+      });
+    })
+  });
+}
+
+//ハンバーガのクリックイベントの設定
+function setBurgerClick(burger, config, userInfo){
+  burger.addEventListener("click", () => {
+    userInfo.clickCount++;
+    userInfo.money = Number(userInfo.money) + getBurgerMoney();
+
+    let clickContainer = document.querySelector(".click-container");
+    let menuContainer = document.querySelector(".menu-container");
+
+    config.mainPage.removeChild(clickContainer);
+    //createClickContainerでsetBurgerClickが呼ばれる
+    config.mainPage.insertBefore(createClickContainer(userInfo, config), menuContainer);
+
+    menuContainer.removeChild(document.querySelector(".user-info-container"));
+    menuContainer.insertBefore(createUserInfoContainer(userInfo), document.querySelector(".select-invest-container"));
+  });
+}
+
+//todo:Json形式でデータを保存する関数を作成する
+function setSaveAndReset(saveBtn, resetBtn, userInfo){
+  saveBtn.addEventListener("click", () => {
+    //Json文字列=>オブジェクト=>Jsonの流れ
+    let jsonString = `[{"userInfo": ${userInfo}, "investsInfo": ${investItems}}]`;
+  });
+
+  resetBtn.addEventListener("click", () => {
+
+  });
+}
+
+function createClickContainer(userInfo, config) {
   let container = document.createElement("div");
   container.classList.add("click-container", "d-flex", "justify-content-center", "align-items-center")
 
@@ -62,7 +186,7 @@ function createClickContainer(userInfo) {
                 <h4 class="text-light">${userInfo.clickCount} Burgers</h4>
               </div>
               <div class="col-12 d-flex justify-content-center align-items-end height-half">
-                <h5 class="text-light">one click ${userInfo.oneClick}</h5>
+                <h5 class="text-light">one click ${getBurgerMoney()}</h5>
               </div>
             </div>
           </div>
@@ -79,6 +203,8 @@ function createClickContainer(userInfo) {
           </div>
         </div>
   `
+
+  setBurgerClick(container.querySelector("#burger"), config, userInfo);
 
   return container;
 }
@@ -117,85 +243,13 @@ function createUserInfoContainer(userInfo) {
             </div>
             <div class="forth-container col-6 d-flex justify-content-center align-items-center">
               <div class="forth-field bg-darkblue d-flex justify-content-center">
-                <p class="text-light">${userInfo.money}</p>
+                <p class="text-light">¥${userInfo.money}</p>
               </div>
             </div>
           </div>
   `
 
   return container;
-}
-
-function setInvestClick(investFields, investFieldAndBtnsField, userInfo, config) {
-  investFields.forEach((invest, i) => {
-
-    investFields[i].addEventListener("click", () => {
-      let field = document.querySelector(".invest-field");
-      field.classList.remove("over-flow");
-      field.classList.add("bg-darkblue");
-
-      let investImg = investFields[i].querySelector(".img-fluid");
-      let investName = investFields[i].querySelector(".invest-name");
-      let investPrice = investFields[i].querySelector(".invest-price");
-      let investNumber = investFields[i].querySelector(".invest-number");
-      let investPerMoney = investFields[i].querySelector(".invest-perMoney");
-      let investMax = investFields[i].querySelector(".invest-max");
-
-      field.innerHTML = "";
-
-      field.innerHTML =
-        `
-              <div class="invest-info-container d-flex justify-content-between align-items-center">
-                <div class="invest-info col-6 px-1 over-flow-hidden">
-                  <h3 class="text-light">${investName.innerHTML}</h3>
-                  <p class="text-light">Max purchases: ${investMax.value}</p>
-                  <p class="text-light">Price: ¥${investPrice.innerHTML}</p>
-                  <p class="text-light">Get ${investPerMoney.innerHTML}</p>
-                </div>
-                <div class="invest-img col-6 d-flex justify-content-end">
-                  <img src="${investImg.src}" class="img-detail">
-                </div>
-              </div>
-              <div class="input-buy-container">
-                <p class="text-light">How many would you like to buy?</p>
-                <input type="number" class="full-width" placeholder="0">
-                <div class="full-size d-flex justify-content-end">
-                  <p class="text-light">total: ￥0</p>
-                </div>
-              </div>
-              <div class="action-btns-container">
-                <div class="full-size d-flex justify-content-between align-items-end">
-                  <div class="col-5">
-                    <input type="button" id="back-btn" class="btn btn-outline-light btns-action" value="Go Back">
-                  </div>
-                  <div class="col-5">
-                    <input type="button" id="purchase-btn" class="btn btn-light btns-action" value="Purchase">
-                  </div>
-                </div>
-              </div>
-      `
-
-      //購入ページのボタンを押した際の設定を行う
-      let backBtn = field.querySelector("#back-btn");
-      backBtn.addEventListener("click", () => {
-        let target = document.querySelector(".menu-container");
-        config.mainPage.removeChild(target);
-        config.mainPage.append(createMenuContainer(userInfo, config));
-      });
-
-
-      let purchaseBtn = field.querySelector("#purchase-btn");
-      purchaseBtn.addEventListener("click", () => {
-        if (Validation.canPurchaseItems(userInfo.money, investPrice.innerHTML)) {
-          //買える際の処理
-        }
-        let target = document.getElementById("menu-container");
-        config.mainPage.removeChild(target);
-        main.append(createMenuContainer(userInfo, config));
-      });
-
-    })
-  });
 }
 
 function createInvestContainer(userInfo, config) {
@@ -263,13 +317,9 @@ function createInvestBtns() {
               <div>
   `
 
+  //setSaveAndReset();
+
   return container;
-}
-
-function createBuyInvestContainer() {
-  let container = document.createElement("div");
-
-
 }
 
 function initializeMain(config, userInfo) {
@@ -303,7 +353,7 @@ document.addEventListener("DOMContentLoaded", () => {
       let btnValue = loginWindowBtns[i].value;
       if (btnValue === "New") {
 
-        var userInfo = new UserInfo(inputName, 20, 0, 0, 0);
+        var userInfo = new UserInfo(inputName, 20, 0, 0);
         initializeMain(config, userInfo);
 
 
