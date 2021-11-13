@@ -21,10 +21,23 @@ var Validation ={
     }
   },
 
-  notEnoughMoneyMessage(money) {
+  notEnoughMoneyMessage: function(money) {
     window.alert(`¥${money}不足しています`);
-  }
+  },
 
+  isDataLocalStorage: function(name){
+    for(let i = 0; i < localStorage.length; i++){
+      if(localStorage.key(i) === name){
+        return true;
+      }
+    }
+    Validation.notData(name);
+    return false;
+  },
+
+  notData: function(name){
+    window.alert(`${name}はSaveDataにありません`);
+  }
 }
 
 const investImgUrls = ["https://cdn.pixabay.com/photo/2019/06/30/20/09/grill-4308709_960_720.png", "https://cdn.pixabay.com/photo/2016/03/31/20/51/chart-1296049_960_720.png", "https://cdn.pixabay.com/photo/2016/03/31/20/51/chart-1296049_960_720.png", "https://cdn.pixabay.com/photo/2012/04/15/20/36/juice-35236_960_720.png", "https://cdn.pixabay.com/photo/2020/01/30/12/37/ice-cream-4805333_960_720.png", "https://cdn.pixabay.com/photo/2016/03/31/18/42/home-1294564_960_720.png", "https://cdn.pixabay.com/photo/2019/06/15/22/30/modern-house-4276598_960_720.png", "https://cdn.pixabay.com/photo/2017/10/30/20/52/condominium-2903520_960_720.png", "https://cdn.pixabay.com/photo/2012/05/07/17/35/factory-48781_960_720.png", "https://cdn.pixabay.com/photo/2012/05/07/18/03/skyscrapers-48853_960_720.png", "https://cdn.pixabay.com/photo/2013/07/13/10/21/train-157027_960_720.png"];
@@ -172,9 +185,10 @@ function setBurgerClick(burger, config, userInfo){
 function setSaveAndReset(saveBtn, resetBtn, userInfo){
   saveBtn.addEventListener("click", () => {
     //Json文字列=>オブジェクト=>Jsonの流れ
-    let jsonString = `[{"userInfo": ${userInfo}, "investsInfo": ${investItems}, "test": 1}]`;
-    let jsonDecode = JSON.parse(jsonString);
-    let jsonEncode = JSON.stringify(jsonDecode);
+    let jsonString = `[{ "userInfo":${userInfo},"investsInfo":${investItems},"test":1 }]`;
+
+    // json文字列をオブジェクトに変換
+    let jsonEncode = JSON.stringify(jsonString);
     localStorage.setItem(userInfo.name, jsonEncode);
   });
 
@@ -370,6 +384,9 @@ document.addEventListener("DOMContentLoaded", () => {
       } else if (btnValue === "Login") {
 
         let jsonLoadData = localStorage.getItem(inputName);
+        if(!Validation.isDataLocalStorage(inputName)){
+          return;
+        }
         //データを書き換える
         setLoadData(jsonLoadData, userInfo);
         initializeMain(config, userInfo);
