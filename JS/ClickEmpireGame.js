@@ -1,4 +1,4 @@
-var Validation ={
+var Validation = {
 
   isInputNull: function (target) {
     if (target !== "") { return false; }
@@ -12,22 +12,38 @@ var Validation ={
     window.alert(`${message}を入力してください。`);
   },
 
-  canPurchaseItems: function (money, price, quantity) {
-    let finalPrice = price * quantity;
-    if (money >= finalPrice) { return true; }
-    else {
+  canPurchaseItems: function (invest, userInfo, quantity) {
+    if (quantity <= 0) { Validation.notPositiveInteger(quantity); }
+    let finalPrice = invest.price * quantity;
+
+    if (finalPrice > userInfo.money) {
       Validation.notEnoughMoneyMessage(finalPrice - money);
       return false;
     }
+
+    if (invest.numberOfPossession > invest.maxPurchases) {
+      Validation.limitNumberOfPossession(invest.numberOfPossession);
+      return false;
+    }
+
+    return true;
   },
 
-  notEnoughMoneyMessage: function(money) {
+  notPositiveInteger(number) {
+    window.alert("0より大きい値を入力してください");
+  },
+
+  notEnoughMoneyMessage: function (money) {
     window.alert(`¥${money}不足しています`);
   },
 
-  isDataLocalStorage: function(name){
-    for(let i = 0; i < localStorage.length; i++){
-      if(localStorage.key(i) === name){
+  limitNumberOfPossession: function (numberOfPossession) {
+    window.alert(`${numberOfPossession}までしか所持できません`)
+  },
+
+  isDataLocalStorage: function (name) {
+    for (let i = 0; i < localStorage.length; i++) {
+      if (localStorage.key(i) === name) {
         return true;
       }
     }
@@ -35,7 +51,7 @@ var Validation ={
     return false;
   },
 
-  notData: function(name){
+  notData: function (name) {
     window.alert(`${name}はセーブデータにありません`);
   }
 }
@@ -46,13 +62,13 @@ const investNames = ["Flip machine", "EFT Stock", "EFT Bonds", "LEmonade Stand",
 
 const investPrices = [1500, 300000, 300000, 30000, 100000, 20000000, 40000000, 250000000, 1000000000, 10000000000, 100000000000];
 
-const perMoneys = ["¥25 /click", "¥0.1 /sec", "¥0.07 /sec", "¥30 /sec", "¥120 /sec", "¥32000 /sec", "¥64000 /sec", "¥500000 /sec", "￥2200000 /sec", "￥25000000 /sec", "￥30000000000 /sec"];
+const perMoneysStr = ["¥25 /click", "¥0.1 /sec", "¥0.07 /sec", "¥30 /sec", "¥120 /sec", "¥32000 /sec", "¥64000 /sec", "¥500000 /sec", "￥2200000 /sec", "￥25000000 /sec", "￥30000000000 /sec"];
 
 const maxPurchases = [500, null, null, 1000, 500, 100, 100, 20, 10, 5, 1];
 
 let investItems = [];
 investImgUrls.forEach((url, i) => {
-  investItems.push(new InvestItem(url, investNames[i], investPrices[i], 0, perMoneys[i], maxPurchases[i]))
+  investItems.push(new InvestItem(url, investNames[i], investPrices[i], 0, perMoneysStr[i], maxPurchases[i]))
 });
 
 function displayPageShow(page) {
@@ -63,10 +79,15 @@ function displayPageNone(page) {
   page.classList.add("d-none");
 }
 
-function displayChange(showPage, nonePage){
+function displayChange(showPage, nonePage) {
   displayPageShow(showPage);
   displayPageNone(nonePage);
 }
+
+function purchase(price, money) {
+  return money - price;
+}
+
 
 function initializeMenuContainer(config, userInfo) {
   let target = document.querySelector(".menu-container");
@@ -74,32 +95,38 @@ function initializeMenuContainer(config, userInfo) {
   config.mainPage.append(createMenuContainer(userInfo, config));
 }
 
-function formatPerMoney(perMoney){
+function formatPerMoney(perMoney) {
   return Number(perMoney.split(" ")[0].substring(1));
 }
 
-function getBurgerMoney(){
-  let money;
-  let possession;
-
-  investItems.forEach(invest => {
-    if(invest.name === "Flip machine"){
-      money = formatPerMoney(invest.perMoney);
-      possession = invest.numberOfPossession;
+function getInvestItem(investName) {
+  let invest;
+  for (let i = 0; i < investItems.length; i++) {
+    if (investItems[i].name === investName) {
+      invest = investItems[i];
+      break;
     }
-
-  });
-  return possession === 0 ? money : money * possession;
-
+  }
+  return invest
 }
 
-function setLoadData(jsonLoadData, userInfo){
+function getBurgerMoney() {
+  let invest = getInvestItem("Flip machine")
+  let money = formatPerMoney(invest.perMoney);
+  let possession = invest.numberOfPossession;
+
+  return possession === 0 ? money : money + (money * possession);
+}
+
+function setLoadData(jsonLoadData, userInfo) {
   let loadData = JSON.parse(jsonLoadData);
   investItems = loadData.investsInfo;
+
   return loadData.userInfo;
 }
 
-function setInvestClick(investFields, investFieldAndBtnsField, userInfo, config) {
+//Investの購入ページに移動する機能を作成
+function setInvestClick(investFields, userInfo, config) {
   investFields.forEach((invest, i) => {
 
     investFields[i].addEventListener("click", () => {
@@ -107,12 +134,8 @@ function setInvestClick(investFields, investFieldAndBtnsField, userInfo, config)
       field.classList.remove("over-flow");
       field.classList.add("bg-darkblue");
 
-      let investImg = investFields[i].querySelector(".img-fluid");
       let investName = investFields[i].querySelector(".invest-name");
-      let investPrice = investFields[i].querySelector(".invest-price");
-      let investNumber = investFields[i].querySelector(".invest-number");
-      let investPerMoney = investFields[i].querySelector(".invest-perMoney");
-      let investMax = investFields[i].querySelector(".invest-max");
+      let invest = getInvestItem(investName.innerHTML);
 
       field.innerHTML = "";
 
@@ -120,13 +143,13 @@ function setInvestClick(investFields, investFieldAndBtnsField, userInfo, config)
         `
               <div class="invest-info-container d-flex justify-content-between align-items-center">
                 <div class="invest-info col-6 px-1 over-flow-hidden">
-                  <h3 class="text-light">${investName.innerHTML}</h3>
-                  <p class="text-light">Max purchases: ${investMax.value}</p>
-                  <p class="text-light">Price: ¥${investPrice.innerHTML}</p>
-                  <p class="text-light">Get ${investPerMoney.innerHTML}</p>
+                  <h3 class="text-light">${invest.name}</h3>
+                  <p class="text-light">Max purchases: ${invest.maxPurchases}</p>
+                  <p class="text-light">Price: ¥${invest.price}</p>
+                  <p class="text-light">Get ${invest.price}</p>
                 </div>
                 <div class="invest-img col-6 d-flex justify-content-end">
-                  <img src="${investImg.src}" class="img-detail">
+                  <img src="${invest.img}" class="img-detail">
                 </div>
               </div>
               <div class="input-buy-container">
@@ -156,20 +179,27 @@ function setInvestClick(investFields, investFieldAndBtnsField, userInfo, config)
 
       let purchaseBtn = field.querySelector("#purchase-btn");
       purchaseBtn.addEventListener("click", () => {
-        if (Validation.canPurchaseItems(userInfo.money, investPrice.innerHTML, field.querySelector(".quantity").value)) {
-          //todo:買える際の処理
+        let money = userInfo.money;
+        let price = Number(invest.price);
+        let quantity = field.querySelector(".quantity").value;
 
+        if (Validation.canPurchaseItems(invest, userInfo, quantity)) {
+          //todo:買える際の処理
+          userInfo.money = purchase(price * quantity, money);
+          invest.numberOfPossession++;
         }
-        initializeMenuContainer(config, userInfo);
+        config.mainPage.innerHTML = "";
+        initializeMain(config, userInfo);
       });
     })
   });
 }
 
 //ハンバーガのクリックイベントの設定
-function setBurgerClick(burger, config, userInfo){
+function setBurgerClick(burger, config, userInfo) {
   burger.addEventListener("click", () => {
     userInfo.clickCount++;
+    //userInfo.moneyを増やす
     userInfo.money = Number(userInfo.money) + getBurgerMoney();
 
     let clickContainer = document.querySelector(".click-container");
@@ -185,10 +215,10 @@ function setBurgerClick(burger, config, userInfo){
 }
 
 //Json形式でデータを保存する関数を作成する
-function setSaveAndReset(saveBtn, resetBtn, userInfo, config){
+function setSaveAndReset(saveBtn, resetBtn, userInfo, config) {
   //Jsonの形で保存する
   saveBtn.addEventListener("click", () => {
-    let jsonString = { userInfo: userInfo, investsInfo:investItems};
+    let jsonString = { userInfo: userInfo, investsInfo: investItems };
 
     // 配列をオブジェクトに変換
     let jsonEncode = JSON.stringify(jsonString);
@@ -198,11 +228,12 @@ function setSaveAndReset(saveBtn, resetBtn, userInfo, config){
   //localStorageのデータを削除
   resetBtn.addEventListener("click", () => {
     localStorage.removeItem(userInfo.name);
-    displayChange(config.loginPage, config.mainPage);
-    config.mainPage.innerHTML = "";
+    //リロードを行い、ログインページに戻る(investItemsを初期化する)
+    location.reload();
   });
 }
 
+//mainPageの左側を作成する
 function createClickContainer(userInfo, config) {
   let container = document.createElement("div");
   container.classList.add("click-container", "d-flex", "justify-content-center", "align-items-center")
@@ -239,6 +270,7 @@ function createClickContainer(userInfo, config) {
   return container;
 }
 
+//mainPageの右側を作成する
 function createMenuContainer(userInfo, config) {
   let container = document.createElement("div");
   container.classList.add("menu-container");
@@ -249,6 +281,7 @@ function createMenuContainer(userInfo, config) {
   return container;
 }
 
+//maniPageの右上のUser情報を作成する
 function createUserInfoContainer(userInfo) {
   let container = document.createElement("div");
   container.classList.add("user-info-container", "d-flex", "justify-content-center", "align-items-center");
@@ -268,7 +301,7 @@ function createUserInfoContainer(userInfo) {
             </div>
             <div class="forth-container col-6 d-flex justify-content-center align-items-center">
               <div class="forth-field bg-darkblue d-flex justify-content-center">
-                <p class="text-light">10 days</p>
+                <p class="text-light">${userInfo.days}</p>
               </div>
             </div>
             <div class="forth-container col-6 d-flex justify-content-center align-items-center">
@@ -282,6 +315,7 @@ function createUserInfoContainer(userInfo) {
   return container;
 }
 
+//mainPageのInvestフィールドの作成
 function createInvestContainer(userInfo, config) {
   let container = document.createElement("div");
   container.classList.add("select-invest-container", "d-flex", "align-items-center", "justify-content-center", "flex-wrap");
@@ -294,12 +328,13 @@ function createInvestContainer(userInfo, config) {
 
   container.append(investFieldAndBtnsField);
 
-  setInvestClick(investFieldAndBtnsField.querySelectorAll(".invest"), investFieldAndBtnsField, userInfo, config)
+  setInvestClick(investFieldAndBtnsField.querySelectorAll(".invest"), userInfo, config)
   setSaveAndReset(container.querySelector(".save-btn"), container.querySelector(".reset-btn"), userInfo, config);
 
   return container;
 }
 
+//Investのリストを作成する
 function createInvestList() {
   let field = document.createElement("div");
   field.classList.add("invest-field", "over-flow", "my-1");
@@ -327,6 +362,7 @@ function createInvestList() {
   return field;
 }
 
+//mainPageのボタンを作成する
 function createInvestBtns() {
   let container = document.createElement("div");
   container.classList.add("save-and-reset-btns-container", "d-flex", "justify-content-end");
@@ -353,6 +389,7 @@ function createInvestBtns() {
   return container;
 }
 
+//MainPageの作成
 function initializeMain(config, userInfo) {
   let main = config.mainPage;
   let login = config.loginPage
@@ -367,9 +404,7 @@ document.addEventListener("DOMContentLoaded", () => {
   //名前空間を生成する
   let config = new Config.Member(document.getElementById("main-page"), document.getElementById("login-page"));
 
-
   let loginWindowBtns = config.loginPage.querySelectorAll(".login-window-btns");
-
 
   loginWindowBtns.forEach((value, i) => {
     loginWindowBtns[i].addEventListener('click', () => {
@@ -381,15 +416,33 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       let btnValue = loginWindowBtns[i].value;
-      var userInfo = new UserInfo(inputName, 20, 0, 0);
+      var userInfo = new UserInfo(inputName, 20, 0, 0, 0);
 
       //Loginの際は、LocalStorageからデータを取得して上書きする
       if (btnValue === "Login") {
-        if(!Validation.isDataLocalStorage(inputName)){return;}
+        if (!Validation.isDataLocalStorage(inputName)) { return; }
         let jsonLoadData = localStorage.getItem(inputName);
         userInfo = setLoadData(jsonLoadData);//investsItemを書き換えて、UserInfoの情報を受け取る
       }
       initializeMain(config, userInfo);
+
+      //裏の処理をworkerで行う
+      let worker = new Worker("../js/Worker.js");
+
+      //1秒間隔でパラメータを裏に渡す
+      window.setInterval(() => {
+        worker.postMessage({
+          "userInfo": userInfo,
+          "investInfo": investItems
+        });
+      }, 1000)
+
+      //裏の処理から値を受け取る
+      worker.addEventListener("message", (e) => {
+        config.mainPage.innerHTML = "";
+        userInfo = e.data;
+        initializeMain(config, userInfo);
+      });
     });
   });
 });
