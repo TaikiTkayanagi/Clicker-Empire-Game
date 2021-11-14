@@ -60,15 +60,15 @@ const investImgUrls = ["https://cdn.pixabay.com/photo/2019/06/30/20/09/grill-430
 
 const investNames = ["Flip machine", "EFT Stock", "EFT Bonds", "LEmonade Stand", "Ice Cream Truck", "House", "Town House", "Mansion", "Industrial Space", "Hotel Skyscraper", "Bullet-Speed Sky"];
 
-const investPrices = [1500, 300000, 300000, 30000, 100000, 20000000, 40000000, 250000000, 1000000000, 10000000000, 100000000000];
+const investPrices = [15000, 300000, 300000, 30000, 100000, 20000000, 40000000, 250000000, 1000000000, 10000000000, 100000000000];
 
-const perMoneysStr = ["¥25 /click", "¥0.1 /sec", "¥0.07 /sec", "¥30 /sec", "¥120 /sec", "¥32000 /sec", "¥64000 /sec", "¥500000 /sec", "￥2200000 /sec", "￥25000000 /sec", "￥30000000000 /sec"];
+const perMoneys = [25, 0.1, 0.07, 30, 120, 3200, 6400, 500000, 2200000, 25000000, 30000000000];
 
 const maxPurchases = [500, null, null, 1000, 500, 100, 100, 20, 10, 5, 1];
 
 let investItems = [];
 investImgUrls.forEach((url, i) => {
-  investItems.push(new InvestItem(url, investNames[i], investPrices[i], 0, perMoneysStr[i], maxPurchases[i]))
+  investItems.push(new InvestItem(url, investNames[i], investPrices[i], perMoneys[i], maxPurchases[i]))
 });
 
 function displayPageShow(page) {
@@ -84,19 +84,10 @@ function displayChange(showPage, nonePage) {
   displayPageNone(nonePage);
 }
 
-function purchase(price, money) {
-  return money - price;
-}
-
-
 function initializeMenuContainer(config, userInfo) {
   let target = document.querySelector(".menu-container");
   config.mainPage.removeChild(target);
   config.mainPage.append(createMenuContainer(userInfo, config));
-}
-
-function formatPerMoney(perMoney) {
-  return Number(perMoney.split(" ")[0].substring(1));
 }
 
 function getInvestItem(investName) {
@@ -112,10 +103,7 @@ function getInvestItem(investName) {
 
 function getBurgerMoney() {
   let invest = getInvestItem("Flip machine")
-  let money = formatPerMoney(invest.perMoney);
-  let possession = invest.numberOfPossession;
-
-  return possession === 0 ? money : money + (money * possession);
+  return invest.getCurrentPerMoney()
 }
 
 function setLoadData(jsonLoadData, userInfo) {
@@ -176,17 +164,15 @@ function setInvestClick(investFields, userInfo, config) {
         initializeMenuContainer(config, userInfo);
       });
 
-
+      //itemの購入イベント
       let purchaseBtn = field.querySelector("#purchase-btn");
       purchaseBtn.addEventListener("click", () => {
-        let money = userInfo.money;
-        let price = Number(invest.price);
-        let quantity = field.querySelector(".quantity").value;
+        let price = invest.price;
+        let quantity = Number(field.querySelector(".quantity").value);
 
         if (Validation.canPurchaseItems(invest, userInfo, quantity)) {
-          //todo:買える際の処理
-          userInfo.money = purchase(price * quantity, money);
-          invest.numberOfPossession++;
+          userInfo.purchase(price * quantity);
+          invest.sold();
         }
         config.mainPage.innerHTML = "";
         initializeMain(config, userInfo);
@@ -198,6 +184,7 @@ function setInvestClick(investFields, userInfo, config) {
 //ハンバーガのクリックイベントの設定
 function setBurgerClick(burger, config, userInfo) {
   burger.addEventListener("click", () => {
+    //todo:UserInfoの処理をUserInfoのメソッドで行うように修正する
     userInfo.clickCount++;
     //userInfo.moneyを増やす
     userInfo.money = Number(userInfo.money) + getBurgerMoney();
@@ -340,6 +327,8 @@ function createInvestList() {
   field.classList.add("invest-field", "over-flow", "my-1");
 
   investItems.forEach(invest => {
+    //clickか、secなのかどうかを判断して、文字列を入れる処理をつける
+    if(invest.name === "Felip ")
     field.innerHTML +=
       `
               <div class="invest col-12 d-flex bg-darkblue my-1">

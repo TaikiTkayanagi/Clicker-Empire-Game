@@ -19,4 +19,9 @@ class UserInfo{
   setMoney(money){
     this.money = money;
   }
+
+  purchase(itemsPrice){
+    this.money = this.money - price;
+    return this.money;
+  }
 }

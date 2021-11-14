@@ -1,12 +1,13 @@
 class InvestItem{
-  constructor(img, name, price, numberOfPossession, perMoneyStr, perMoneyNum, maxPurchases){
+  constructor(img, name, price, numberOfPossession, perMoney, maxPurchases){
     this.img = img;
     this.name = name;
     this.price = price;
     this.numberOfPossession = numberOfPossession;
-    //文字列で表示する際の
-    this.perMoneyStr = perMoneyStr;
-    this.perMoneyNum = perMoneyNum
+    //表示する際のPerMoney(不変)
+    this.perMoney = perMoney;
+    //現在のPerMoneyを取得(可変)
+    this.currentPerMoneyNum = perMoney;
     this.maxPurchases = maxPurchases
   }
 
@@ -14,17 +15,16 @@ class InvestItem{
     this.numberOfPossession = num;
   }
 
-  setPerMoneyNumByNumberOfPossession(){
-    this.perMoneyNum = this.perMoneyNum + (this.numberOfPossession * this.perMoneyNum);
+  setCurrentPerMoney(){
+    this.currentPerMoneyNum = this.currentPerMoneyNum + (this.numberOfPossession * this.perMoney);
   }
 
-  getPerMoneyNum(){
-    if(this.name === "EFT Stock"){return getEFTStockPerMoneyNum();}
-    let perMoney = 0;
-    if(this.numberOfPossession > 0){
-      perMoney = this.perMoneyNum - (this.numberOfPossession * this.perMoneyNum);
-    }
-    return perMoney === 0 ? this.perMoneyNum : perMoney;
+  getCurrentPerMoneyNum(){
+    return this.currentPerMoneyNum;
+  }
+
+  sold(){
+    this.numberOfPossession++;
   }
 
   //todo:データの役割をそれぞれ考えて、setとgetのロジックを考える
