@@ -36,7 +36,7 @@ var Validation ={
   },
 
   notData: function(name){
-    window.alert(`${name}はSaveDataにありません`);
+    window.alert(`${name}はセーブデータにありません`);
   }
 }
 
@@ -50,7 +50,7 @@ const perMoneys = ["¥25 /click", "¥0.1 /sec", "¥0.07 /sec", "¥30 /sec", "¥1
 
 const maxPurchases = [500, null, null, 1000, 500, 100, 100, 20, 10, 5, 1];
 
-const investItems = [];
+let investItems = [];
 investImgUrls.forEach((url, i) => {
   investItems.push(new InvestItem(url, investNames[i], investPrices[i], 0, perMoneys[i], maxPurchases[i]))
 });
@@ -61,6 +61,11 @@ function displayPageShow(page) {
 
 function displayPageNone(page) {
   page.classList.add("d-none");
+}
+
+function displayChange(showPage, nonePage){
+  displayPageShow(showPage);
+  displayPageNone(nonePage);
 }
 
 function initializeMenuContainer(config, userInfo) {
@@ -90,9 +95,8 @@ function getBurgerMoney(){
 
 function setLoadData(jsonLoadData, userInfo){
   let loadData = JSON.parse(jsonLoadData);
-  userInfo = loadData.userInfo;
-  let test = loadData.test;
   investItems = loadData.investsInfo;
+  return loadData.userInfo;
 }
 
 function setInvestClick(investFields, investFieldAndBtnsField, userInfo, config) {
@@ -144,8 +148,7 @@ function setInvestClick(investFields, investFieldAndBtnsField, userInfo, config)
               </div>
       `
 
-      //購入ページのボタンを押した際の設定を行う
-      let backBtn = field.querySelector("#back-btn");
+      let backBtn = field.querySelector("#back-btn");//購入ページのボタンを押した際の設定を行う
       backBtn.addEventListener("click", () => {
         initializeMenuContainer(config, userInfo);
       });
@@ -154,7 +157,7 @@ function setInvestClick(investFields, investFieldAndBtnsField, userInfo, config)
       let purchaseBtn = field.querySelector("#purchase-btn");
       purchaseBtn.addEventListener("click", () => {
         if (Validation.canPurchaseItems(userInfo.money, investPrice.innerHTML, field.querySelector(".quantity").value)) {
-          //買える際の処理
+          //todo:買える際の処理
 
         }
         initializeMenuContainer(config, userInfo);
@@ -181,19 +184,22 @@ function setBurgerClick(burger, config, userInfo){
   });
 }
 
-//todo:Json形式でデータを保存する関数を作成する
-function setSaveAndReset(saveBtn, resetBtn, userInfo){
+//Json形式でデータを保存する関数を作成する
+function setSaveAndReset(saveBtn, resetBtn, userInfo, config){
+  //Jsonの形で保存する
   saveBtn.addEventListener("click", () => {
-    //Json文字列=>オブジェクト=>Jsonの流れ
-    let jsonString = `[{ "userInfo":${userInfo},"investsInfo":${investItems},"test":1 }]`;
+    let jsonString = { userInfo: userInfo, investsInfo:investItems};
 
-    // json文字列をオブジェクトに変換
+    // 配列をオブジェクトに変換
     let jsonEncode = JSON.stringify(jsonString);
     localStorage.setItem(userInfo.name, jsonEncode);
   });
 
+  //localStorageのデータを削除
   resetBtn.addEventListener("click", () => {
-    localStorage.removeItem("clickEmpire");
+    localStorage.removeItem(userInfo.name);
+    displayChange(config.loginPage, config.mainPage);
+    config.mainPage.innerHTML = "";
   });
 }
 
@@ -289,7 +295,7 @@ function createInvestContainer(userInfo, config) {
   container.append(investFieldAndBtnsField);
 
   setInvestClick(investFieldAndBtnsField.querySelectorAll(".invest"), investFieldAndBtnsField, userInfo, config)
-  setSaveAndReset(container.querySelector(".save-btn"), container.querySelector(".reset-btn"), userInfo);
+  setSaveAndReset(container.querySelector(".save-btn"), container.querySelector(".reset-btn"), userInfo, config);
 
   return container;
 }
@@ -351,8 +357,7 @@ function initializeMain(config, userInfo) {
   let main = config.mainPage;
   let login = config.loginPage
 
-  displayPageShow(main);
-  displayPageNone(login);
+  displayChange(main, login);
 
   main.append(createClickContainer(userInfo, config));
   main.append(createMenuContainer(userInfo, config));
@@ -377,20 +382,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
       let btnValue = loginWindowBtns[i].value;
       var userInfo = new UserInfo(inputName, 20, 0, 0);
-      if (btnValue === "New") {
 
-        initializeMain(config, userInfo);
-
-      } else if (btnValue === "Login") {
-
+      //Loginの際は、LocalStorageからデータを取得して上書きする
+      if (btnValue === "Login") {
+        if(!Validation.isDataLocalStorage(inputName)){return;}
         let jsonLoadData = localStorage.getItem(inputName);
-        if(!Validation.isDataLocalStorage(inputName)){
-          return;
-        }
-        //データを書き換える
-        setLoadData(jsonLoadData, userInfo);
-        initializeMain(config, userInfo);
+        userInfo = setLoadData(jsonLoadData);//investsItemを書き換えて、UserInfoの情報を受け取る
       }
+      initializeMain(config, userInfo);
     });
   });
 });
