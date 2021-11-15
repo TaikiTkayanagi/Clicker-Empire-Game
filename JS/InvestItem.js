@@ -7,8 +7,12 @@ class InvestItem{
     //表示する際のPerMoney(不変)
     this.perMoney = perMoney;
     //現在のPerMoneyを取得(可変)
-    this.currentPerMoneyNum = perMoney;
+    this.currentPerMoneyNum = this.getPerMoneyNum();
     this.maxPurchases = maxPurchases
+  }
+
+  getPerMoneyNum(){
+    return this.perMoney.split(" ")[0].substring(1);
   }
 
   setNumberOfPossession(num){

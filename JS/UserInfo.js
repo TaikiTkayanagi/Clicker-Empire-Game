@@ -1,10 +1,9 @@
 class UserInfo{
   //日数は、UserInfoに適していないと考え入れない
-  constructor(name, age, money, days,  clickCount){
+  constructor(name, age, money, clickCount){
     this.name = name;
     this.age = age;
     this.money = money
-    this.days = days;
     this.clickCount = clickCount
   }
 
@@ -21,7 +20,12 @@ class UserInfo{
   }
 
   purchase(itemsPrice){
-    this.money = this.money - price;
+    this.money = this.money - itemsPrice;
     return this.money;
+  }
+
+  work(wage){
+    this.clickCount++;
+    this.money += Number(wage);
   }
 }

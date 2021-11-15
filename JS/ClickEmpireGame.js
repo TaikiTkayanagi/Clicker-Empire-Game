@@ -62,14 +62,18 @@ const investNames = ["Flip machine", "EFT Stock", "EFT Bonds", "LEmonade Stand",
 
 const investPrices = [15000, 300000, 300000, 30000, 100000, 20000000, 40000000, 250000000, 1000000000, 10000000000, 100000000000];
 
-const perMoneys = [25, 0.1, 0.07, 30, 120, 3200, 6400, 500000, 2200000, 25000000, 30000000000];
+const perMoneys = ["¥25 /click", "¥0.1 /sec", "¥0.07 /sec", "¥30 /sec", "¥120 /sec", "¥3200 /sec", "¥6400 /sec", "¥500000 /sec", "¥2200000 /sec", "¥25000000 /sec", "¥30000000000 /sec"];
 
 const maxPurchases = [500, null, null, 1000, 500, 100, 100, 20, 10, 5, 1];
 
+//Itemsのリスト
 let investItems = [];
 investImgUrls.forEach((url, i) => {
-  investItems.push(new InvestItem(url, investNames[i], investPrices[i], perMoneys[i], maxPurchases[i]))
+  investItems.push(new InvestItem(url, investNames[i], investPrices[i], 0, perMoneys[i], maxPurchases[i]))
 });
+
+//日付
+var days = 0;
 
 function displayPageShow(page) {
   page.classList.remove("d-none");
@@ -90,7 +94,21 @@ function initializeMenuContainer(config, userInfo) {
   config.mainPage.append(createMenuContainer(userInfo, config));
 }
 
-function getInvestItem(investName) {
+function initializeUserInfoContainer(config, userInfo) {
+  let menuContainer = document.querySelector(".menu-container");
+  menuContainer.removeChild(document.querySelector(".user-info-container"));
+  menuContainer.insertBefore(createUserInfoContainer(userInfo), document.querySelector(".select-invest-container"));
+}
+
+function initializeClickContainer(config, userInfo) {
+  let clickContainer = config.mainPage.querySelector(".click-container");
+  let menuContainer = config.mainPage.querySelector(".menu-container");
+  config.mainPage.removeChild(clickContainer);
+  //createClickContainerでsetBurgerClickが呼ばれる
+  config.mainPage.insertBefore(createClickContainer(userInfo, config), menuContainer);
+}
+
+function getTargetInvestItem(investName) {
   let invest;
   for (let i = 0; i < investItems.length; i++) {
     if (investItems[i].name === investName) {
@@ -102,8 +120,8 @@ function getInvestItem(investName) {
 }
 
 function getBurgerMoney() {
-  let invest = getInvestItem("Flip machine")
-  return invest.getCurrentPerMoney()
+  let invest = getTargetInvestItem("Flip machine")
+  return invest.getCurrentPerMoneyNum()
 }
 
 function setLoadData(jsonLoadData, userInfo) {
@@ -123,7 +141,7 @@ function setInvestClick(investFields, userInfo, config) {
       field.classList.add("bg-darkblue");
 
       let investName = investFields[i].querySelector(".invest-name");
-      let invest = getInvestItem(investName.innerHTML);
+      let invest = getTargetInvestItem(investName.innerHTML);
 
       field.innerHTML = "";
 
@@ -185,19 +203,10 @@ function setInvestClick(investFields, userInfo, config) {
 function setBurgerClick(burger, config, userInfo) {
   burger.addEventListener("click", () => {
     //todo:UserInfoの処理をUserInfoのメソッドで行うように修正する
-    userInfo.clickCount++;
-    //userInfo.moneyを増やす
-    userInfo.money = Number(userInfo.money) + getBurgerMoney();
+    userInfo.work(getBurgerMoney());
 
-    let clickContainer = document.querySelector(".click-container");
-    let menuContainer = document.querySelector(".menu-container");
-
-    config.mainPage.removeChild(clickContainer);
-    //createClickContainerでsetBurgerClickが呼ばれる
-    config.mainPage.insertBefore(createClickContainer(userInfo, config), menuContainer);
-
-    menuContainer.removeChild(document.querySelector(".user-info-container"));
-    menuContainer.insertBefore(createUserInfoContainer(userInfo), document.querySelector(".select-invest-container"));
+    initializeClickContainer(config, userInfo);
+    initializeUserInfoContainer(config, userInfo);
   });
 }
 
@@ -268,7 +277,7 @@ function createMenuContainer(userInfo, config) {
   return container;
 }
 
-//maniPageの右上のUser情報を作成する
+//userInfoContainerを作成する
 function createUserInfoContainer(userInfo) {
   let container = document.createElement("div");
   container.classList.add("user-info-container", "d-flex", "justify-content-center", "align-items-center");
@@ -288,7 +297,7 @@ function createUserInfoContainer(userInfo) {
             </div>
             <div class="forth-container col-6 d-flex justify-content-center align-items-center">
               <div class="forth-field bg-darkblue d-flex justify-content-center">
-                <p class="text-light">${userInfo.days}</p>
+                <p class="text-light">${days} days</p>
               </div>
             </div>
             <div class="forth-container col-6 d-flex justify-content-center align-items-center">
@@ -327,8 +336,6 @@ function createInvestList() {
   field.classList.add("invest-field", "over-flow", "my-1");
 
   investItems.forEach(invest => {
-    //clickか、secなのかどうかを判断して、文字列を入れる処理をつける
-    if(invest.name === "Felip ")
     field.innerHTML +=
       `
               <div class="invest col-12 d-flex bg-darkblue my-1">
@@ -405,7 +412,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       let btnValue = loginWindowBtns[i].value;
-      var userInfo = new UserInfo(inputName, 20, 0, 0, 0);
+      var userInfo = new UserInfo(inputName, 20, 0, 0);
 
       //Loginの際は、LocalStorageからデータを取得して上書きする
       if (btnValue === "Login") {
@@ -415,22 +422,22 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       initializeMain(config, userInfo);
 
+
       //裏の処理をworkerで行う
       let worker = new Worker("../js/Worker.js");
 
       //1秒間隔でパラメータを裏に渡す
       window.setInterval(() => {
         worker.postMessage({
-          "userInfo": userInfo,
-          "investInfo": investItems
+          "investInfo": investItems,
+          "days": days //グローバル変数のdaysを渡す
         });
       }, 1000)
 
       //裏の処理から値を受け取る
       worker.addEventListener("message", (e) => {
-        config.mainPage.innerHTML = "";
-        userInfo = e.data;
-        initializeMain(config, userInfo);
+        days = e.data; //グローバル変数を書き換える
+        initializeUserInfoContainer(config, userInfo);
       });
     });
   });
