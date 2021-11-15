@@ -11,24 +11,19 @@ class InvestItem{
     this.maxPurchases = maxPurchases
   }
 
+  //PerMoney文字列を数値を取り出して数値型にする
   getPerMoneyNum(){
-    return this.perMoney.split(" ")[0].substring(1);
+    return Number(this.perMoney.split(" ")[0].substring(1));
   }
 
-  setNumberOfPossession(num){
-    this.numberOfPossession = num;
-  }
-
-  setCurrentPerMoney(){
-    this.currentPerMoneyNum = this.currentPerMoneyNum + (this.numberOfPossession * this.perMoney);
+  //purchaseした際の処理を増やす
+  sold(){
+    this.numberOfPossession++;
+    this.currentPerMoneyNum += this.getPerMoneyNum();
   }
 
   getCurrentPerMoneyNum(){
     return this.currentPerMoneyNum;
-  }
-
-  sold(){
-    this.numberOfPossession++;
   }
 
   //todo:データの役割をそれぞれ考えて、setとgetのロジックを考える

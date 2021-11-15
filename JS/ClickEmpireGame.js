@@ -60,7 +60,7 @@ const investImgUrls = ["https://cdn.pixabay.com/photo/2019/06/30/20/09/grill-430
 
 const investNames = ["Flip machine", "EFT Stock", "EFT Bonds", "LEmonade Stand", "Ice Cream Truck", "House", "Town House", "Mansion", "Industrial Space", "Hotel Skyscraper", "Bullet-Speed Sky"];
 
-const investPrices = [15000, 300000, 300000, 30000, 100000, 20000000, 40000000, 250000000, 1000000000, 10000000000, 100000000000];
+const investPrices = [1500, 300000, 300000, 30000, 100000, 20000000, 40000000, 250000000, 1000000000, 10000000000, 100000000000];
 
 const perMoneys = ["¥25 /click", "¥0.1 /sec", "¥0.07 /sec", "¥30 /sec", "¥120 /sec", "¥3200 /sec", "¥6400 /sec", "¥500000 /sec", "¥2200000 /sec", "¥25000000 /sec", "¥30000000000 /sec"];
 
@@ -74,6 +74,7 @@ investImgUrls.forEach((url, i) => {
 
 //日付
 var days = 0;
+var totalSecMoney = 0;
 
 function displayPageShow(page) {
   page.classList.remove("d-none");
@@ -86,6 +87,20 @@ function displayPageNone(page) {
 function displayChange(showPage, nonePage) {
   displayPageShow(showPage);
   displayPageNone(nonePage);
+}
+
+function soldETF(invest){
+  let increase = 10;
+  invest.currentPerMoneyNum += invest.price * invest.getPerMoneyNum();
+  if(invest.name === "ETF Stock"){invest.price += invest.price * increase}
+}
+
+function soldInvestItem(invest) {
+  if (invest.name.indexOf("ETF Stock") !== -1) {
+    soldETF(invest);
+  } else {
+    invest.sold();
+  }
 }
 
 function initializeMenuContainer(config, userInfo) {
@@ -190,7 +205,7 @@ function setInvestClick(investFields, userInfo, config) {
 
         if (Validation.canPurchaseItems(invest, userInfo, quantity)) {
           userInfo.purchase(price * quantity);
-          invest.sold();
+          soldInvestItem(invest);
         }
         config.mainPage.innerHTML = "";
         initializeMain(config, userInfo);
@@ -281,6 +296,9 @@ function createMenuContainer(userInfo, config) {
 function createUserInfoContainer(userInfo) {
   let container = document.createElement("div");
   container.classList.add("user-info-container", "d-flex", "justify-content-center", "align-items-center");
+
+  if (days % 365 === 0) { userInfo.age++; }
+  userInfo.money += totalSecMoney;
 
   container.innerHTML =
     `
@@ -412,7 +430,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       let btnValue = loginWindowBtns[i].value;
-      var userInfo = new UserInfo(inputName, 20, 0, 0);
+      var userInfo = new UserInfo(inputName, 20, 500000, 0);
 
       //Loginの際は、LocalStorageからデータを取得して上書きする
       if (btnValue === "Login") {
@@ -436,7 +454,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
       //裏の処理から値を受け取る
       worker.addEventListener("message", (e) => {
-        days = e.data; //グローバル変数を書き換える
+        days = e.data.Day; //グローバル変数を書き換える
+        totalSecMoney = e.data.Money;
         initializeUserInfoContainer(config, userInfo);
       });
     });
