@@ -17,7 +17,7 @@ var Validation = {
     let finalPrice = invest.price * quantity;
 
     if (finalPrice > userInfo.money) {
-      Validation.notEnoughMoneyMessage(finalPrice - money);
+      Validation.notEnoughMoneyMessage(finalPrice - userInfo.money);
       return false;
     }
 
@@ -90,13 +90,13 @@ function displayChange(showPage, nonePage) {
 }
 
 function soldETF(invest){
-  let increase = 10;
-  invest.currentPerMoneyNum += invest.price * invest.getPerMoneyNum();
-  if(invest.name === "ETF Stock"){invest.price += invest.price * increase}
+  invest.currentPerMoneyNum = invest.price * invest.getPerMoneyNum();
+  if(invest.name === "EFT Stock"){invest.price += invest.currentPerMoneyNum;}
+  invest.numberOfPossession++;
 }
 
 function soldInvestItem(invest) {
-  if (invest.name.indexOf("ETF Stock") !== -1) {
+  if (invest.name.indexOf("EFT") !== -1) {
     soldETF(invest);
   } else {
     invest.sold();
@@ -139,9 +139,15 @@ function getBurgerMoney() {
   return invest.getCurrentPerMoneyNum()
 }
 
+//todo:データの取得方法を変更する
 function setLoadData(jsonLoadData, userInfo) {
   let loadData = JSON.parse(jsonLoadData);
   investItems = loadData.investsInfo;
+
+  investItems.forEach((x, i) => {
+    console.log(x);
+    console.log(i);
+  })
 
   return loadData.userInfo;
 }
@@ -217,7 +223,6 @@ function setInvestClick(investFields, userInfo, config) {
 //ハンバーガのクリックイベントの設定
 function setBurgerClick(burger, config, userInfo) {
   burger.addEventListener("click", () => {
-    //todo:UserInfoの処理をUserInfoのメソッドで行うように修正する
     userInfo.work(getBurgerMoney());
 
     initializeClickContainer(config, userInfo);
@@ -229,6 +234,7 @@ function setBurgerClick(burger, config, userInfo) {
 function setSaveAndReset(saveBtn, resetBtn, userInfo, config) {
   //Jsonの形で保存する
   saveBtn.addEventListener("click", () => {
+    //todo: データの保存方法を考える
     let jsonString = { userInfo: userInfo, investsInfo: investItems };
 
     // 配列をオブジェクトに変換
@@ -362,7 +368,7 @@ function createInvestList() {
                 </div>
                 <div class=" invest-title col-6 over-flow-hidden">
                   <h3 class="text-light invest-name">${invest.name}</h3>
-                  <p class="text-light invest-price">${invest.price}</p>
+                  <p class="text-light invest-price">¥${invest.price}</p>
                 </div>
                 <div class=" invest-count col-3 over-flow-hidden">
                   <h3 class="text-light invest-number">${invest.numberOfPossession}</h3>
