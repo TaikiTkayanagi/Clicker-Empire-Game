@@ -21,7 +21,7 @@ var Validation = {
       return false;
     }
 
-    if (invest.numberOfPossession > invest.maxPurchases) {
+    if (invest.maxPurchases !== null && invest.numberOfPossession > invest.maxPurchases) {
       Validation.limitNumberOfPossession(invest.numberOfPossession);
       return false;
     }
@@ -73,7 +73,7 @@ investImgUrls.forEach((url, i) => {
 });
 
 //日付
-var days = 0;
+var days = 1;
 var totalSecMoney = 0;
 
 function displayPageShow(page) {
@@ -89,6 +89,7 @@ function displayChange(showPage, nonePage) {
   displayPageNone(nonePage);
 }
 
+//todo:currentPerMoneyNumが初期化されている、合算したい
 function soldETF(invest){
   invest.currentPerMoneyNum = invest.price * invest.getPerMoneyNum();
   if(invest.name === "EFT Stock"){invest.price += invest.currentPerMoneyNum;}
@@ -140,16 +141,20 @@ function getBurgerMoney() {
 }
 
 //todo:データの取得方法を変更する
-function setLoadData(jsonLoadData, userInfo) {
+function setLoadData(jsonLoadData) {
   let loadData = JSON.parse(jsonLoadData);
-  investItems = loadData.investsInfo;
+  let investsObject = loadData.investsInfo;
+  let userInfoObject = loadData.userInfo;
+  let tmp = [];
 
-  investItems.forEach((x, i) => {
-    console.log(x);
-    console.log(i);
+  investsObject.forEach((invest, i) => {
+    tmp.push(new InvestItem(invest.img, invest.name, invest.price, invest.numberOfPossession, invest.perMoney, invest.maxPurchases, invest.currentPerMoneyNum));
   })
+  //ロードしたデータにinvestItemsを差し替える
+  investItems = tmp;
+  days = loadData.date;
 
-  return loadData.userInfo;
+  return new UserInfo(userInfoObject.name, userInfoObject.age, userInfoObject.money, userInfoObject.clickCount);
 }
 
 //Investの購入ページに移動する機能を作成
@@ -197,7 +202,7 @@ function setInvestClick(investFields, userInfo, config) {
                 </div>
               </div>
       `
-
+      //イベントを関数でsetする
       let backBtn = field.querySelector("#back-btn");//購入ページのボタンを押した際の設定を行う
       backBtn.addEventListener("click", () => {
         initializeMenuContainer(config, userInfo);
@@ -234,8 +239,7 @@ function setBurgerClick(burger, config, userInfo) {
 function setSaveAndReset(saveBtn, resetBtn, userInfo, config) {
   //Jsonの形で保存する
   saveBtn.addEventListener("click", () => {
-    //todo: データの保存方法を考える
-    let jsonString = { userInfo: userInfo, investsInfo: investItems };
+    let jsonString = { userInfo: userInfo, investsInfo: investItems, date: days};
 
     // 配列をオブジェクトに変換
     let jsonEncode = JSON.stringify(jsonString);
