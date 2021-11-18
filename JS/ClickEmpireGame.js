@@ -91,7 +91,7 @@ function displayChange(showPage, nonePage) {
 
 //todo:currentPerMoneyNumが初期化されている、合算したい
 function soldETF(invest){
-  invest.currentPerMoneyNum = invest.price * invest.getPerMoneyNum();
+  invest.currentPerMoneyNum += invest.price * invest.getPerMoneyNum();
   if(invest.name === "EFT Stock"){invest.price += invest.currentPerMoneyNum;}
   invest.numberOfPossession++;
 }
@@ -135,9 +135,10 @@ function getTargetInvestItem(investName) {
   return invest
 }
 
+//初期の状態の際は、getPerMoneyNumを返す。
 function getBurgerMoney() {
-  let invest = getTargetInvestItem("Flip machine")
-  return invest.getCurrentPerMoneyNum()
+  let invest = getTargetInvestItem("Flip machine");
+  return invest.getCurrentPerMoneyNum() === 0 ? invest.getPerMoneyNum() : invest.getCurrentPerMoneyNum();
 }
 
 //todo:データの取得方法を変更する

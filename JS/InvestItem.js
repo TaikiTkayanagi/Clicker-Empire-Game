@@ -1,5 +1,5 @@
 class InvestItem{
-  constructor(img, name, price, numberOfPossession, perMoney, maxPurchases, currentPerMoneyNum=null){
+  constructor(img, name, price, numberOfPossession, perMoney, maxPurchases, currentPerMoneyNum=0){
     this.img = img;
     this.name = name;
     this.price = price;
@@ -7,8 +7,7 @@ class InvestItem{
     //表示する際のPerMoney(不変)
     this.perMoney = perMoney;
     this.maxPurchases = maxPurchases
-    if(currentPerMoneyNum === null){this.currentPerMoneyNum = this.getPerMoneyNum();}
-    else {this.currentPerMoneyNum = currentPerMoneyNum;}
+    this.currentPerMoneyNum = currentPerMoneyNum
   }
 
 
