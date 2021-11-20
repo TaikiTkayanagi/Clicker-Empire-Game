@@ -480,7 +480,7 @@ document.addEventListener("DOMContentLoaded", () => {
     loginWindowBtns[i].addEventListener('click', () => {
       let inputName = config.loginPage.querySelector(".input-name").value;
       //インスタンスを生成する
-      userInfo = new UserInfo(inputName, 20, 5000000, 0);
+      userInfo = new UserInfo(inputName, 20, 5000, 0);
 
       //validation:値が入力されていな際、警告メッセージを出す
       if (Validation.isInputNull(inputName)) {
