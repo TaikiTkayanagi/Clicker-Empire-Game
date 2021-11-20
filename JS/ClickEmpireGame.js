@@ -69,7 +69,13 @@ const maxPurchases = [500, null, null, 1000, 500, 100, 100, 20, 10, 5, 1];
 //Itemsのリスト
 let investItems = [];
 investImgUrls.forEach((url, i) => {
-  investItems.push(new InvestItem(url, investNames[i], investPrices[i], 0, perMoneys[i], maxPurchases[i]))
+  let currentPerMoneyNum = 0;
+
+  if(investNames[i] === "Flip machine"){
+    currentPerMoneyNum = 25
+  }
+
+  investItems.push(new InvestItem(url, investNames[i], investPrices[i], 0, perMoneys[i], maxPurchases[i], currentPerMoneyNum))
 });
 
 //日付
@@ -89,19 +95,37 @@ function displayChange(showPage, nonePage) {
   displayPageNone(nonePage);
 }
 
-//todo:currentPerMoneyNumが初期化されている、合算したい
-function soldETF(invest){
-  invest.currentPerMoneyNum += invest.price * invest.getPerMoneyNum();
-  if(invest.name === "EFT Stock"){invest.price += invest.currentPerMoneyNum;}
-  invest.numberOfPossession++;
+function soldFlipMachine(invest, quantity){
+  invest.currentPerMoneyNum += invest.getPerMoneyNum() * quantity;
+  invest.numberOfPossession += quantity;
 }
 
-function soldInvestItem(invest) {
+function soldETF(invest, quantity) {
+  invest.currentPerMoneyNum += invest.price * invest.getPerMoneyNum();
+  if (invest.name === "EFT Stock") { invest.price += invest.currentPerMoneyNum; }
+  invest.increaseNumberOfPossession(quantity);
+}
+
+function soldInvestItem(invest, quantity) {
   if (invest.name.indexOf("EFT") !== -1) {
-    soldETF(invest);
+
+    soldETF(invest, quantity);
+
+  } else if(invest.name === "Flip machine"){
+
+    soldFlipMachine(invest, quantity);
+
   } else {
-    invest.sold();
+
+    invest.sold(quantity);
+
   }
+}
+
+function hamburgerWork(userInfo, config) {
+  userInfo.work(getBurgerMoney());
+  initializeClickContainer(config, userInfo);
+  initializeUserInfoContainer(config, userInfo);
 }
 
 function initializeMenuContainer(config, userInfo) {
@@ -141,7 +165,6 @@ function getBurgerMoney() {
   return invest.getCurrentPerMoneyNum() === 0 ? invest.getPerMoneyNum() : invest.getCurrentPerMoneyNum();
 }
 
-//todo:データの取得方法を変更する
 function setLoadData(jsonLoadData) {
   let loadData = JSON.parse(jsonLoadData);
   let investsObject = loadData.investsInfo;
@@ -158,6 +181,7 @@ function setLoadData(jsonLoadData) {
   return new UserInfo(userInfoObject.name, userInfoObject.age, userInfoObject.money, userInfoObject.clickCount);
 }
 
+//todo:Enterを押したら、この関数を実行するようにする
 //Investの購入ページに移動する機能を作成
 function setInvestClick(investFields, userInfo, config) {
   investFields.forEach((invest, i) => {
@@ -217,7 +241,7 @@ function setInvestClick(investFields, userInfo, config) {
 
         if (Validation.canPurchaseItems(invest, userInfo, quantity)) {
           userInfo.purchase(price * quantity);
-          soldInvestItem(invest);
+          soldInvestItem(invest, quantity);
         }
         config.mainPage.innerHTML = "";
         initializeMain(config, userInfo);
@@ -226,21 +250,14 @@ function setInvestClick(investFields, userInfo, config) {
   });
 }
 
-//ハンバーガのクリックイベントの設定
-function setBurgerClick(burger, config, userInfo) {
-  burger.addEventListener("click", () => {
-    userInfo.work(getBurgerMoney());
 
-    initializeClickContainer(config, userInfo);
-    initializeUserInfoContainer(config, userInfo);
-  });
-}
+
 
 //Json形式でデータを保存する関数を作成する
 function setSaveAndReset(saveBtn, resetBtn, userInfo, config) {
   //Jsonの形で保存する
   saveBtn.addEventListener("click", () => {
-    let jsonString = { userInfo: userInfo, investsInfo: investItems, date: days};
+    let jsonString = { userInfo: userInfo, investsInfo: investItems, date: days };
 
     // 配列をオブジェクトに変換
     let jsonEncode = JSON.stringify(jsonString);
@@ -281,13 +298,11 @@ function createClickContainer(userInfo, config) {
           <div class="burgers-btn-container">
             <div class="burgers-btn-field d-flex justify-content-center">
               <img src="https://cdn.pixabay.com/photo/2014/04/02/17/00/burger-307648_960_720.png" height="70%"
-                width="50%" class="py-2 hover img-fuid" id="burger">
+                width="50%" class="py-2 hover img-fuid" id="burger" onclick="document.getElementsByTagName('body')[0].dispatchEvent(new KeyboardEvent('keydown', {'key': 'Enter'}))">
             </div>
           </div>
         </div>
   `
-
-  setBurgerClick(container.querySelector("#burger"), config, userInfo);
 
   return container;
 }
@@ -425,15 +440,47 @@ function initializeMain(config, userInfo) {
   main.append(createMenuContainer(userInfo, config));
 }
 
+//ハンバーガのクリックイベントをset
+function setBurgerEvent(userInfo, config){
+  document.getElementsByTagName("body")[0].addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {hamburgerWork(userInfo, config);}
+  });
+}
+
+function startWorker(userInfo, config){
+  //裏の処理をworkerで行う
+  let worker = new Worker("../js/Worker.js");
+
+  //1秒間隔でパラメータを裏に渡す
+  window.setInterval(() => {
+    worker.postMessage({
+      "investInfo": investItems,
+      "days": days //グローバル変数のdaysを渡す
+    });
+  }, 1000)
+
+  //裏の処理から値を受け取る
+  worker.addEventListener("message", (e) => {
+    days = e.data.Day; //グローバル変数を書き換える
+    totalSecMoney = e.data.Money;
+    initializeUserInfoContainer(config, userInfo);
+  });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   //名前空間を生成する
   let config = new Config.Member(document.getElementById("main-page"), document.getElementById("login-page"));
 
   let loginWindowBtns = config.loginPage.querySelectorAll(".login-window-btns");
 
+  //DomContentLoaded内では、利用できるようにする
+  let userInfo;
+
   loginWindowBtns.forEach((value, i) => {
     loginWindowBtns[i].addEventListener('click', () => {
       let inputName = config.loginPage.querySelector(".input-name").value;
+      //インスタンスを生成する
+      userInfo = new UserInfo(inputName, 20, 5000000, 0);
 
       //validation:値が入力されていな際、警告メッセージを出す
       if (Validation.isInputNull(inputName)) {
@@ -441,7 +488,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       let btnValue = loginWindowBtns[i].value;
-      var userInfo = new UserInfo(inputName, 20, 500000, 0);
 
       //Loginの際は、LocalStorageからデータを取得して上書きする
       if (btnValue === "Login") {
@@ -449,26 +495,10 @@ document.addEventListener("DOMContentLoaded", () => {
         let jsonLoadData = localStorage.getItem(inputName);
         userInfo = setLoadData(jsonLoadData);//investsItemを書き換えて、UserInfoの情報を受け取る
       }
+
       initializeMain(config, userInfo);
-
-
-      //裏の処理をworkerで行う
-      let worker = new Worker("../js/Worker.js");
-
-      //1秒間隔でパラメータを裏に渡す
-      window.setInterval(() => {
-        worker.postMessage({
-          "investInfo": investItems,
-          "days": days //グローバル変数のdaysを渡す
-        });
-      }, 1000)
-
-      //裏の処理から値を受け取る
-      worker.addEventListener("message", (e) => {
-        days = e.data.Day; //グローバル変数を書き換える
-        totalSecMoney = e.data.Money;
-        initializeUserInfoContainer(config, userInfo);
-      });
+      setBurgerEvent(userInfo, config);
+      startWorker(userInfo, config);
     });
   });
 });

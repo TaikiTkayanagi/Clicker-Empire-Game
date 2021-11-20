@@ -10,14 +10,17 @@ class InvestItem{
     this.currentPerMoneyNum = currentPerMoneyNum
   }
 
+  increaseNumberOfPossession(quantity){
+    this.numberOfPossession += quantity;
+  }
 
 
   getPerMoneyNum(){
     return Number(this.perMoney.split(" ")[0].substring(1));
   }
 
-  sold(){
-    this.numberOfPossession++;
+  sold(quantity){
+    this.increaseNumberOfPossession(quantity);
     this.currentPerMoneyNum = this.numberOfPossession * this.getPerMoneyNum();
   }
 
