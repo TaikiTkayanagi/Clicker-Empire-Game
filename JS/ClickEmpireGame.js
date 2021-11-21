@@ -449,7 +449,7 @@ function setBurgerEvent(userInfo, config){
 
 function startWorker(userInfo, config){
   //裏の処理をworkerで行う
-  let worker = new Worker("../js/Worker.js");
+  let worker = new Worker("./js/Worker.js");
 
   //1秒間隔でパラメータを裏に渡す
   window.setInterval(() => {
