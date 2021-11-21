@@ -125,7 +125,7 @@ function soldInvestItem(invest, quantity) {
 function hamburgerWork(userInfo, config) {
   userInfo.work(getBurgerMoney());
   initializeClickContainer(config, userInfo);
-  initializeUserInfoContainer(config, userInfo);
+  initializeUserInfoContainer(userInfo);
 }
 
 function initializeMenuContainer(config, userInfo) {
@@ -134,7 +134,7 @@ function initializeMenuContainer(config, userInfo) {
   config.mainPage.append(createMenuContainer(userInfo, config));
 }
 
-function initializeUserInfoContainer(config, userInfo) {
+function initializeUserInfoContainer(userInfo) {
   let menuContainer = document.querySelector(".menu-container");
   menuContainer.removeChild(document.querySelector(".user-info-container"));
   menuContainer.insertBefore(createUserInfoContainer(userInfo), document.querySelector(".select-invest-container"));
@@ -145,7 +145,7 @@ function initializeClickContainer(config, userInfo) {
   let menuContainer = config.mainPage.querySelector(".menu-container");
   config.mainPage.removeChild(clickContainer);
   //createClickContainerでsetBurgerClickが呼ばれる
-  config.mainPage.insertBefore(createClickContainer(userInfo, config), menuContainer);
+  config.mainPage.insertBefore(createClickContainer(userInfo), menuContainer);
 }
 
 function getTargetInvestItem(investName) {
@@ -169,19 +169,18 @@ function setLoadData(jsonLoadData) {
   let loadData = JSON.parse(jsonLoadData);
   let investsObject = loadData.investsInfo;
   let userInfoObject = loadData.userInfo;
-  let tmp = [];
+  let investTmp = [];
 
   investsObject.forEach((invest, i) => {
-    tmp.push(new InvestItem(invest.img, invest.name, invest.price, invest.numberOfPossession, invest.perMoney, invest.maxPurchases, invest.currentPerMoneyNum));
+    investTmp.push(new InvestItem(invest.img, invest.name, invest.price, invest.numberOfPossession, invest.perMoney, invest.maxPurchases, invest.currentPerMoneyNum));
   })
   //ロードしたデータにinvestItemsを差し替える
-  investItems = tmp;
+  investItems = investTmp;
   days = loadData.date;
 
   return new UserInfo(userInfoObject.name, userInfoObject.age, userInfoObject.money, userInfoObject.clickCount);
 }
 
-//todo:Enterを押したら、この関数を実行するようにする
 //Investの購入ページに移動する機能を作成
 function setInvestClick(investFields, userInfo, config) {
   investFields.forEach((invest, i) => {
@@ -250,11 +249,8 @@ function setInvestClick(investFields, userInfo, config) {
   });
 }
 
-
-
-
 //Json形式でデータを保存する関数を作成する
-function setSaveAndReset(saveBtn, resetBtn, userInfo, config) {
+function setSaveAndReset(saveBtn, resetBtn, userInfo) {
   //Jsonの形で保存する
   saveBtn.addEventListener("click", () => {
     let jsonString = { userInfo: userInfo, investsInfo: investItems, date: days };
@@ -262,6 +258,10 @@ function setSaveAndReset(saveBtn, resetBtn, userInfo, config) {
     // 配列をオブジェクトに変換
     let jsonEncode = JSON.stringify(jsonString);
     localStorage.setItem(userInfo.name, jsonEncode);
+
+    if(window.confirm("保存しました。ログインページに戻りますか？")){
+      location.reload();
+    }
   });
 
   //localStorageのデータを削除
@@ -273,7 +273,7 @@ function setSaveAndReset(saveBtn, resetBtn, userInfo, config) {
 }
 
 //mainPageの左側を作成する
-function createClickContainer(userInfo, config) {
+function createClickContainer(userInfo) {
   let container = document.createElement("div");
   container.classList.add("click-container", "d-flex", "justify-content-center", "align-items-center")
 
@@ -369,7 +369,7 @@ function createInvestContainer(userInfo, config) {
   container.append(investFieldAndBtnsField);
 
   setInvestClick(investFieldAndBtnsField.querySelectorAll(".invest"), userInfo, config)
-  setSaveAndReset(container.querySelector(".save-btn"), container.querySelector(".reset-btn"), userInfo, config);
+  setSaveAndReset(container.querySelector(".save-btn"), container.querySelector(".reset-btn"), userInfo);
 
   return container;
 }
@@ -436,7 +436,7 @@ function initializeMain(config, userInfo) {
 
   displayChange(main, login);
 
-  main.append(createClickContainer(userInfo, config));
+  main.append(createClickContainer(userInfo));
   main.append(createMenuContainer(userInfo, config));
 }
 
@@ -447,8 +447,9 @@ function setBurgerEvent(userInfo, config){
   });
 }
 
-function startWorker(userInfo, config){
+function startWorker(userInfo){
   //裏の処理をworkerで行う
+  //URIで引数を指定する
   let worker = new Worker("JS/Worker.js");
 
   //1秒間隔でパラメータを裏に渡す
@@ -463,7 +464,7 @@ function startWorker(userInfo, config){
   worker.addEventListener("message", (e) => {
     days = e.data.Day; //グローバル変数を書き換える
     totalSecMoney = e.data.Money;
-    initializeUserInfoContainer(config, userInfo);
+    initializeUserInfoContainer(userInfo);
   });
 }
 
@@ -498,7 +499,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       initializeMain(config, userInfo);
       setBurgerEvent(userInfo, config);
-      startWorker(userInfo, config);
+      startWorker(userInfo);
     });
   });
 });
