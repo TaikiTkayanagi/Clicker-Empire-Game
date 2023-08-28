@@ -1,0 +1,25 @@
+{
+	"name": "clicker-empire-game",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.ts",
+	"type": "module",
+	"scripts": {
+		"test": "jest",
+		"lint": "eslint --config eslint.config.cjs",
+		"format": "prettier --ignore-path .gitignore --write \"**/*.+(ts|json)\""
+	},
+	"author": "",
+	"license": "ISC",
+	"devDependencies": {
+		"@types/jest": "^29.5.4",
+		"@typescript-eslint/eslint-plugin": "^6.4.1",
+		"eslint": "^8.48.0",
+		"eslint-config-prettier": "^9.0.0",
+		"eslint-plugin-prettier": "^5.0.0",
+		"jest": "^29.6.4",
+		"prettier": "^3.0.2",
+		"ts-jest": "^29.1.1",
+		"typescript": "^5.2.2"
+	}
+}
