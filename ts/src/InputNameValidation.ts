@@ -1,6 +1,6 @@
 const InputNameValidation = (inputName: string) => {
 	const isNull = () => {
-		return inputName !== ''
+		return inputName === ''
 	}
 
 	const showErrorIfNull = () => {
