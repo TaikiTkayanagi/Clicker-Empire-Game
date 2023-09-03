@@ -28,14 +28,20 @@ const UserInfoContainer = () => {
             </div>
             <div class="forth-container col-6 d-flex justify-content-center align-items-center">
             	<div class="forth-field bg-darkblue d-flex justify-content-center">
-                	<p class="text-light">¥${user.money}</p>
+                	<p id="user-money" class="text-light">¥${user.money}</p>
             	</div>
             </div>
         </div>
 		`
 		return container
 	}
-	return { create }
+
+	const reRenderingMoney = (userMoney: UserType['money']) => {
+		const userMoneyElement = document.getElementById('user-money')
+		if (!userMoneyElement) throw new Error('user-moneyが存在しない')
+		userMoneyElement.innerText = userMoney.toString()
+	}
+	return { create, reRenderingMoney }
 }
 
 export default UserInfoContainer

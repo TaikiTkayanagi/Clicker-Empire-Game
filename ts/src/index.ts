@@ -20,6 +20,7 @@ const registerClick = (loginPage: LoginPageType) => {
 			const mainPage = ClickEmpireGame('main-page')
 			mainPage.show(user, InvestItems)
 			loginPage.hide()
+			mainPage.registerClickOnBurgerBtn(user)
 		})
 	})
 }

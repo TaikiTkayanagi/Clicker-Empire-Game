@@ -20,7 +20,7 @@ const ClickContainer = () => {
         	<div class="burgers-info-container d-flex justify-content-center align-items-center">
             	<div class="burgers-info-field bg-darkblue d-flex flex-wrap">
             		<div class="col-12 d-flex justify-content-center height-half">
-                		<h4 class="text-light">${clickCount} Burgers</h4>
+                		<h4 id="click-count" class="text-light">${clickCount} Burgers</h4>
             		</div>
             	<div class="col-12 d-flex justify-content-center align-items-end height-half">
                 	<h5 class="text-light">one click ${burgerMoneyPerOneClick}</h5>
@@ -41,7 +41,13 @@ const ClickContainer = () => {
     </div>`
 		return div
 	}
-	return { create }
+
+	const reRenderClickCount = (clickCount: UserType['clickCount']) => {
+		const clickCountElement = document.getElementById('click-count')
+		if (!clickCountElement) throw new Error('clickCountが存在しない')
+		clickCountElement.innerText = `${clickCount.toString()} Burgers`
+	}
+	return { create, reRenderClickCount }
 }
 
 export default ClickContainer
